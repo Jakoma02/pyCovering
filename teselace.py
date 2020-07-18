@@ -292,8 +292,8 @@ class App():
         visited = [[False for _ in range(self.width)]
                    for _ in range(self.height)]
 
-        for y in range(self.width):
-            for x in range(self.height):
+        for y in range(self.height):
+            for x in range(self.width):
                 if visited[y][x] or state[y][x] is not None:
                     continue
                 component_size = dfs(x, y)
