@@ -85,16 +85,16 @@ class App():
         self.block_size_entry.insert(0, str(self.block_size))
         self.block_size_entry.pack()
 
-        size_button = tk.Button(frame, text="Update size",
-                                command=self.update_size)
-        size_button.pack(side=tk.LEFT)
+        update_button = tk.Button(frame, text="Update settings",
+                                  command=self.update_settings)
+        update_button.pack(side=tk.LEFT)
 
         step_button = tk.Button(frame, text="Step", command=self.step)
         step_button.pack(side=tk.LEFT)
 
         self.reset_state()
 
-    def update_size(self):
+    def update_settings(self):
         width = self.width_entry.get()
         height = self.height_entry.get()
         block_size = self.block_size_entry.get()
