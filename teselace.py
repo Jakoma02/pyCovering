@@ -62,25 +62,28 @@ class Area(tk.Canvas):
 
 
 class App():
-    STEP_TILES = 4
-
     def __init__(self, master):
         self.area = Area(master)
         self.area.pack(pady=100, padx=100)
 
         self.width = 10
         self.height = 10
+        self.block_size = 4
 
         frame = tk.Frame(master)
         frame.pack()
 
         self.width_entry = tk.Entry(frame)
-        self.width_entry.insert(0, "10")
+        self.width_entry.insert(0, str(self.width))
         self.width_entry.pack()
 
         self.height_entry = tk.Entry(frame)
-        self.height_entry.insert(0, "10")
+        self.height_entry.insert(0, str(self.height))
         self.height_entry.pack()
+
+        self.block_size_entry = tk.Entry(frame)
+        self.block_size_entry.insert(0, str(self.block_size))
+        self.block_size_entry.pack()
 
         size_button = tk.Button(frame, text="Update size",
                                 command=self.update_size)
@@ -94,12 +97,14 @@ class App():
     def update_size(self):
         width = self.width_entry.get()
         height = self.height_entry.get()
+        block_size = self.block_size_entry.get()
 
         try:
             width = int(width)
             height = int(height)
+            block_size = int(block_size)
 
-            if width < 1 or height < 1:
+            if width < 1 or height < 1 or block_size < 1:
                 mb.showerror("Invalid sizes", "The sizes must be at least one")
                 return
 
@@ -107,6 +112,7 @@ class App():
 
             self.width = width
             self.height = height
+            self.block_size = block_size
 
             self.reset_state()
 
@@ -192,7 +198,6 @@ class App():
 
         return res_list
 
-
     def valid_step(self, pos):
         """
         Returns a tuple of positions of a valid step
@@ -223,7 +228,7 @@ class App():
                 x, y = generated
                 state_copy[y][x] = -1  # Placeholder
 
-                if len(curr_generated) == self.STEP_TILES:
+                if len(curr_generated) == self.block_size:
                     if self.is_finishable(state=state_copy):
                         return tuple(curr_generated)
                     state_copy[y][x] = None
@@ -243,7 +248,7 @@ class App():
     def is_finishable(self, state=None):
         """
         Do a DFS and check that all component sizes are divisible
-        by STEP_TILES
+        by block_size
         """
 
         def dfs(x, y):
@@ -280,7 +285,7 @@ class App():
                 if visited[y][x] or state[y][x] is not None:
                     continue
                 component_size = dfs(x, y)
-                if component_size % self.STEP_TILES != 0:
+                if component_size % self.block_size != 0:
                     return False
 
         return True
