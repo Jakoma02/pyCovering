@@ -17,7 +17,7 @@ class TestApp(unittest.TestCase):
     """
     HEIGHT = 3
     WIDTH = 3
-    STEP_TILES = 3
+    BLOCK_SIZE = 3
 
     full = list(it.product(range(WIDTH), range(HEIGHT)))
 
@@ -27,7 +27,7 @@ class TestApp(unittest.TestCase):
 
         self.app.height = self.HEIGHT
         self.app.width = self.WIDTH
-        self.app.STEP_TILES = self.STEP_TILES
+        self.app.block_size = self.BLOCK_SIZE
         self.app.reset_state()
 
     def _fill_positions(self, full_positions):
