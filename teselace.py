@@ -163,14 +163,35 @@ class App():
             (pos[0], pos[1] + 1)
         ]
 
-        random.shuffle(neighbors)
+        result = set()
 
         for x, y in neighbors:
             if x < 0 or y < 0 or x >= self.width or y >= self.height:
                 continue
             if state[y][x] is not None:
                 continue
-            yield (x, y)
+            result.add((x, y))
+
+        return result
+
+    def group_neighbors(self, group, state=None):
+        """
+        Return a shuffled list of all empty neighbors of a group
+        """
+
+        if state is None:
+            state = self.state
+
+        result = set()
+
+        for pos in group:
+            result.update(self.empty_neighbors(pos, state=state))
+
+        res_list = list(result)
+        random.shuffle(res_list)
+
+        return res_list
+
 
     def valid_step(self, pos):
         """
@@ -188,7 +209,9 @@ class App():
         x, y = pos
         state_copy[y][x] = -1
 
-        new_gen = self.empty_neighbors(pos, state=state_copy)
+        # TODO: Rename generators to iterators
+
+        new_gen = iter(self.group_neighbors(curr_generated, state=state_copy))
         generators.append(new_gen)
 
         while generators:
@@ -206,7 +229,8 @@ class App():
                     state_copy[y][x] = None
                     curr_generated.pop()
                 else:
-                    new_gen = self.empty_neighbors(generated, state=state_copy)
+                    new_gen = iter(self.group_neighbors(curr_generated,
+                                                        state=state_copy))
                     generators.append(new_gen)
 
             except StopIteration:
