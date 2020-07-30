@@ -15,22 +15,22 @@ def random_color():
     return "#{:06X}".format(code)
 
 
-class ImpossibleToFinish(Exception):
+class ImpossibleToFinishException(Exception):
     """
     This exception is thrown when it is not possible
     to cover the whole area
     """
 
 
-class AreaModel:
+class CoveringModel:
     """
     Model encapsulating all bussiness logic
     """
 
-    def __init__(self):
-        self.width = 10
-        self.height = 10
-        self.block_size = 4
+    def __init__(self, width, height, block_size):
+        self.width = width
+        self.height = height
+        self.block_size = block_size
 
         self.reset()
 
@@ -63,7 +63,18 @@ class AreaModel:
         """
         Adds one tile (makes one step)
         """
-        pass
+        pos = self._next_empty(self.pos)
+        self.pos = pos
+
+        valid = self._valid_step(pos)
+        if valid is None:
+            raise ImpossibleToFinishException("There are no more valid steps")
+
+        for pos in valid:
+            x, y = pos
+            self.state[y][x] = self.step_nu
+
+        self.step_nu += 1
 
     def try_cover(self):
         """
@@ -219,16 +230,16 @@ class AreaModel:
 
 
 class Area(tk.Canvas):
-    INIT_TILES = 10
     TILE_SIZE = 30
 
-    def __init__(self, master):
-        width = self.INIT_TILES * self.TILE_SIZE
-        height = self.INIT_TILES * self.TILE_SIZE
+    def __init__(self, master, width, height):
+        canvas_width = width * self.TILE_SIZE
+        canvas_height = height * self.TILE_SIZE
 
         self.colors = {}
 
-        super().__init__(master, width=width, height=height, bg="white")
+        super().__init__(master, width=canvas_width,
+                         height=canvas_height, bg="white")
 
     def update(self, data):
         self.delete("all")
@@ -265,13 +276,20 @@ class Area(tk.Canvas):
 
 
 class App():
+    INIT_WIDTH = 10
+    INIT_HEIGHT = 10
+    INIT_BLOCK_SIZE = 4
+
     def __init__(self, master):
-        self.area = Area(master)
+        self.area = Area(master, self.INIT_WIDTH, self.INIT_WIDTH)
         self.area.pack(pady=100, padx=100)
 
-        self.width = 10
-        self.height = 10
-        self.block_size = 4
+        self.model = CoveringModel(self.INIT_WIDTH, self.INIT_HEIGHT,
+                                   self.INIT_BLOCK_SIZE)
+
+        self.width = self.INIT_WIDTH
+        self.height = self.INIT_HEIGHT
+        self.block_size = self.INIT_BLOCK_SIZE
 
         frame = tk.Frame(master)
         frame.pack()
@@ -307,8 +325,6 @@ class App():
         step_button = tk.Button(frame, text="Step", command=self.step)
         step_button.pack(side=tk.LEFT)
 
-        self.reset_state()
-
     def update_settings(self):
         width = self.width_entry.get()
         height = self.height_entry.get()
@@ -329,181 +345,26 @@ class App():
             self.height = height
             self.block_size = block_size
 
-            self.reset_state()
+            self.reset()
 
         except ValueError:
             mb.showerror("Invalid sizes", "The sizes are not integers")
 
-    def reset_state(self):
-        self.state = [[None for _ in range(self.width)]
-                      for _ in range(self.height)]
-        self.pos = (0, 0)
-        self.step_nu = 1
+    def reset(self):
+        self.model.set_size(self.width, self.height)
+        self.model.set_block_size(self.block_size)
 
-        self.area.update(self.state)
-
-    def next_empty(self, pos):
-        if pos is None:
-            return None
-
-        x, y = pos
-
-        for j in range(y, self.height):
-            first = x if j == y else 0
-            for i in range(first, self.width):
-                if self.state[j][i] is None:
-                    return (i, j)
-
-        return None
+        self.model.reset()
+        self.area.update(self.model.state)
 
     def step(self):
-        pos = self.next_empty(self.pos)
-        self.pos = pos
+        try:
+            self.model.add_random_tile()
+        except ImpossibleToFinishException:
+            mb.showerror("Impossible to finish",
+                         "There are no more valid steps")
 
-        valid = self.valid_step(pos)
-        if valid is None:
-            mb.showerror("No more steps", "There are no more valid steps")
-            return
-
-        for pos in valid:
-            x, y = pos
-            self.state[y][x] = self.step_nu
-
-        self.step_nu += 1
-
-        self.area.update(self.state)
-
-    def empty_neighbors(self, pos, state=None):
-        if state is None:
-            state = self.state
-
-        neighbors = [
-            (pos[0] - 1, pos[1]),
-            (pos[0] + 1, pos[1]),
-            (pos[0], pos[1] - 1),
-            (pos[0], pos[1] + 1)
-        ]
-
-        result = set()
-
-        for x, y in neighbors:
-            if x < 0 or y < 0 or x >= self.width or y >= self.height:
-                continue
-            if state[y][x] is not None:
-                continue
-            result.add((x, y))
-
-        return result
-
-    def group_neighbors(self, group, state=None):
-        """
-        Return a shuffled list of all empty neighbors of a group
-        """
-
-        if state is None:
-            state = self.state
-
-        result = set()
-
-        for pos in group:
-            result.update(self.empty_neighbors(pos, state=state))
-
-        res_list = list(result)
-        random.shuffle(res_list)
-
-        return res_list
-
-    def valid_step(self, pos):
-        """
-        Returns a tuple of positions of a valid step
-        starting with pos
-        """
-        generators = []
-        curr_generated = [pos]
-
-        state_copy = copy.deepcopy(self.state)
-
-        if pos is None:
-            return None
-
-        x, y = pos
-        state_copy[y][x] = -1
-
-        # TODO: Rename generators to iterators
-
-        new_gen = iter(self.group_neighbors(curr_generated, state=state_copy))
-        generators.append(new_gen)
-
-        while generators:
-            last_gen = generators[-1]
-            try:
-                generated = next(last_gen)
-                curr_generated.append(generated)
-
-                x, y = generated
-                state_copy[y][x] = -1  # Placeholder
-
-                if len(curr_generated) == self.block_size:
-                    if self.is_finishable(state=state_copy):
-                        return tuple(curr_generated)
-                    state_copy[y][x] = None
-                    curr_generated.pop()
-                else:
-                    new_gen = iter(self.group_neighbors(curr_generated,
-                                                        state=state_copy))
-                    generators.append(new_gen)
-
-            except StopIteration:
-                generators.pop()
-                x, y = curr_generated.pop()
-                state_copy[y][x] = None
-
-        return None
-
-    def is_finishable(self, state=None):
-        """
-        Do a DFS and check that all component sizes are divisible
-        by block_size
-        """
-
-        def dfs(x, y):
-            if x < 0 or y < 0 or x >= self.width or y >= self.height:
-                return 0
-            if state[y][x] is not None:
-                return 0
-            if visited[y][x]:
-                return 0
-
-            visited[y][x] = True
-            count = 1  # Me
-
-            neighbors = [
-                (x - 1, y),
-                (x + 1, y),
-                (x, y - 1),
-                (x, y + 1)
-            ]
-
-            for x2, y2 in neighbors:
-                count += dfs(x2, y2)
-
-            return count
-
-        if state is None:
-            state = self.state
-
-        visited = [[False for _ in range(self.width)]
-                   for _ in range(self.height)]
-
-        for y in range(self.height):
-            for x in range(self.width):
-                if visited[y][x] or state[y][x] is not None:
-                    continue
-                component_size = dfs(x, y)
-                if component_size % self.block_size != 0:
-                    return False
-
-        return True
+        self.area.update(self.model.state)
 
 
 if __name__ == "__main__":
