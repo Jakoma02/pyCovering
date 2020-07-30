@@ -15,6 +15,44 @@ def random_color():
     return "#{:06X}".format(code)
 
 
+class AreaModel:
+    """
+    Model encapsulating all bussiness logic
+    """
+
+    def set_size(self, w, h):
+        """
+        Sets the area width and height (this resets current state)
+        """
+        pass
+
+    def set_block_size(self, size):
+        """
+        Sets size of the tile groups (this resets current state)
+        """
+        pass
+
+    def reset(self):
+        """
+        Removes all tiles
+        """
+        pass
+
+    def add_random_tile(self):
+        """
+        Adds one tile (makes one step)
+        """
+        pass
+
+    def try_cover(self):
+        """
+        Tries to cover the whole area with tiles, throws
+        an exception if not successful
+        """
+        pass
+
+
+
 class Area(tk.Canvas):
     INIT_TILES = 10
     TILE_SIZE = 30
