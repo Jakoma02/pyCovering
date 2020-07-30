@@ -15,28 +15,49 @@ def random_color():
     return "#{:06X}".format(code)
 
 
+class ImpossibleToFinish(Exception):
+    """
+    This exception is thrown when it is not possible
+    to cover the whole area
+    """
+
+
 class AreaModel:
     """
     Model encapsulating all bussiness logic
     """
 
-    def set_size(self, w, h):
+    def __init__(self):
+        self.width = 10
+        self.height = 10
+        self.block_size = 4
+
+        self.reset()
+
+    def set_size(self, width, height):
         """
         Sets the area width and height (this resets current state)
         """
-        pass
+        self.width = width
+        self.height = height
 
     def set_block_size(self, size):
         """
         Sets size of the tile groups (this resets current state)
         """
-        pass
+        self.block_size = size
 
     def reset(self):
         """
-        Removes all tiles
+        Removes all tiles, resets position
         """
-        pass
+        self.state = [[None for _ in range(self.width)]
+                      for _ in range(self.height)]
+        self.pos = (0, 0)
+        self.step_nu = 1
+
+    def is_filled(self):
+        return (self.step_nu - 1) * self.block_size == self.width * self.height
 
     def add_random_tile(self):
         """
@@ -49,8 +70,152 @@ class AreaModel:
         Tries to cover the whole area with tiles, throws
         an exception if not successful
         """
-        pass
+        while not self.is_filled():
+            self.add_random_tile()
 
+    def _next_empty(self, pos):
+        if pos is None:
+            return None
+
+        x, y = pos
+
+        for j in range(y, self.height):
+            first = x if j == y else 0
+            for i in range(first, self.width):
+                if self.state[j][i] is None:
+                    return (i, j)
+
+        return None
+
+    def _empty_neighbors(self, pos, state=None):
+        if state is None:
+            state = self.state
+
+        neighbors = [
+            (pos[0] - 1, pos[1]),
+            (pos[0] + 1, pos[1]),
+            (pos[0], pos[1] - 1),
+            (pos[0], pos[1] + 1)
+        ]
+
+        result = set()
+
+        for x, y in neighbors:
+            if x < 0 or y < 0 or x >= self.width or y >= self.height:
+                continue
+            if state[y][x] is not None:
+                continue
+            result.add((x, y))
+
+        return result
+
+    def _group_neighbors(self, group, state=None):
+        """
+        Return a shuffled list of all empty neighbors of a group
+        """
+
+        if state is None:
+            state = self.state
+
+        result = set()
+
+        for pos in group:
+            result.update(self._empty_neighbors(pos, state=state))
+
+        res_list = list(result)
+        random.shuffle(res_list)
+
+        return res_list
+
+    def _valid_step(self, pos):
+        """
+        Returns a tuple of positions of a valid step
+        starting with pos
+        """
+        iterables = []
+        curr_generated = [pos]
+
+        state_copy = copy.deepcopy(self.state)
+
+        if pos is None:
+            return None
+
+        x, y = pos
+        state_copy[y][x] = -1
+
+        new_gen = iter(self._group_neighbors(curr_generated, state=state_copy))
+        iterables.append(new_gen)
+
+        while iterables:
+            last_gen = iterables[-1]
+            try:
+                generated = next(last_gen)
+                curr_generated.append(generated)
+
+                x, y = generated
+                state_copy[y][x] = -1  # Placeholder
+
+                if len(curr_generated) == self.block_size:
+                    if self._is_finishable(state=state_copy):
+                        return tuple(curr_generated)
+                    state_copy[y][x] = None
+                    curr_generated.pop()
+                else:
+                    new_gen = iter(self._group_neighbors(curr_generated,
+                                                         state=state_copy))
+                    iterables.append(new_gen)
+
+            except StopIteration:
+                iterables.pop()
+                x, y = curr_generated.pop()
+                state_copy[y][x] = None
+
+        return None
+
+    def _is_finishable(self, state=None):
+        """
+        Do a DFS and check that all component sizes are divisible
+        by block_size
+        """
+
+        def dfs(x, y):
+            if x < 0 or y < 0 or x >= self.width or y >= self.height:
+                return 0
+            if state[y][x] is not None:
+                return 0
+            if visited[y][x]:
+                return 0
+
+            visited[y][x] = True
+            count = 1  # Me
+
+            neighbors = [
+                (x - 1, y),
+                (x + 1, y),
+                (x, y - 1),
+                (x, y + 1)
+            ]
+
+            for x2, y2 in neighbors:
+                count += dfs(x2, y2)
+
+            return count
+
+        if state is None:
+            state = self.state
+
+        visited = [[False for _ in range(self.width)]
+                   for _ in range(self.height)]
+
+        for y in range(self.height):
+            for x in range(self.width):
+                if visited[y][x] or state[y][x] is not None:
+                    continue
+                component_size = dfs(x, y)
+                if component_size % self.block_size != 0:
+                    return False
+
+        return True
 
 
 class Area(tk.Canvas):
