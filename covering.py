@@ -59,14 +59,14 @@ class CoveringModel:
     def is_filled(self):
         return (self.step_nu - 1) * self.block_size == self.width * self.height
 
-    def add_random_tile(self):
+    def add_random_tile(self, check_finishable=True):
         """
         Adds one tile (makes one step)
         """
         pos = self._next_empty(self.pos)
         self.pos = pos
 
-        valid = self._valid_step(pos)
+        valid = self._valid_step(pos, check_finishable=check_finishable)
         if valid is None:
             raise ImpossibleToFinishException("There are no more valid steps")
 
@@ -76,13 +76,13 @@ class CoveringModel:
 
         self.step_nu += 1
 
-    def try_cover(self):
+    def try_cover(self, check_finishable=True):
         """
         Tries to cover the whole area with tiles, throws
         an exception if not successful
         """
         while not self.is_filled():
-            self.add_random_tile()
+            self.add_random_tile(check_finishable=check_finishable)
 
     def _next_empty(self, pos):
         if pos is None:
@@ -138,7 +138,7 @@ class CoveringModel:
 
         return res_list
 
-    def _valid_step(self, pos):
+    def _valid_step(self, pos, check_finishable=True):
         """
         Returns a tuple of positions of a valid step
         starting with pos
@@ -167,7 +167,8 @@ class CoveringModel:
                 state_copy[y][x] = -1  # Placeholder
 
                 if len(curr_generated) == self.block_size:
-                    if self._is_finishable(state=state_copy):
+                    if not check_finishable or \
+                           self._is_finishable(state=state_copy):
                         return tuple(curr_generated)
                     state_copy[y][x] = None
                     curr_generated.pop()
@@ -359,7 +360,7 @@ class App():
 
     def step(self):
         try:
-            self.model.add_random_tile()
+            self.model.add_random_tile(check_finishable=True)
         except ImpossibleToFinishException:
             mb.showerror("Impossible to finish",
                          "There are no more valid steps")
@@ -369,6 +370,6 @@ class App():
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("2D Tesselation - Jakub Komárek 2020")
+    root.title("2D Covering - Jakub Komárek 2020")
     app = App(root)
     root.mainloop()
