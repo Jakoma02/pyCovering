@@ -1,5 +1,5 @@
 """
-Unit tests for 2D teselation program
+Unit tests for 2D covering program
 """
 
 import unittest
@@ -8,7 +8,9 @@ import itertools as it
 
 from parameterized import parameterized
 
-from teselace import App
+from covering import App
+
+# TODO: Update to use the new interface (CoveringModel)
 
 
 class TestApp(unittest.TestCase):
