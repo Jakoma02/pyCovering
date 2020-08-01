@@ -87,7 +87,7 @@ class CoveringModel:
 
         self.step_nu += 1
 
-    def try_cover(self, check_finishable=True, timeout=30):
+    def try_cover(self, check_finishable=True, timeout=0):
         """
         Tries to cover the whole area with tiles, throws
         an exception if not successful
