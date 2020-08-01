@@ -4,6 +4,7 @@ import tkinter as tk
 import tkinter.messagebox as mb
 import random
 import copy
+import signal  # Unix only!
 
 
 def random_color():
@@ -17,8 +18,15 @@ def random_color():
 
 class ImpossibleToFinishException(Exception):
     """
-    This exception is thrown when it is not possible
+    This exception is raised when it is not possible
     to cover the whole area
+    """
+
+
+class CoveringTimeoutException(Exception):
+    """
+    This exception is raised if covering takes
+    longer than allowed
     """
 
 
@@ -31,6 +39,9 @@ class CoveringModel:
         self.width = width
         self.height = height
         self.block_size = block_size
+
+        # Set timeout handler
+        signal.signal(signal.SIGALRM, self._timeout_handler)
 
         self.reset()
 
@@ -76,13 +87,20 @@ class CoveringModel:
 
         self.step_nu += 1
 
-    def try_cover(self, check_finishable=True):
+    def try_cover(self, check_finishable=True, timeout=30):
         """
         Tries to cover the whole area with tiles, throws
         an exception if not successful
         """
+        signal.alarm(timeout)  # In seconds
+
         while not self.is_filled():
             self.add_random_tile(check_finishable=check_finishable)
+
+        signal.alarm(0)  # Cancel alarm
+
+    def _timeout_handler(self, sig, frame):
+        raise CoveringTimeoutException("Time exceeded")
 
     def _next_empty(self, pos):
         if pos is None:

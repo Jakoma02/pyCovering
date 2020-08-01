@@ -1,8 +1,11 @@
-from covering import CoveringModel, ImpossibleToFinishException
+from covering import CoveringModel, ImpossibleToFinishException, \
+                     CoveringTimeoutException
 
 WIDTH = 20
 HEIGHT = 20
 TILE_SIZE = 4
+
+TIMEOUT = 30
 
 model = CoveringModel(WIDTH, HEIGHT, TILE_SIZE)
 
@@ -15,25 +18,25 @@ def non_trivial_divisors(x):
 
 def measure(w, h, ts, count):
     success_count = 0
+    timeout_count = 0
 
     model.set_size(w, h)
     model.set_block_size(ts)
 
     for i in range(count):
         print(f"    {i+1}/{count}", end="\r")
-        # print(f"Attempt #{i + 1}... ", end="")
         model.reset()
 
         try:
-            model.try_cover(check_finishable=False)
-            # print("SUCCESS")
+            model.try_cover(check_finishable=False, timeout=TIMEOUT)
             success_count += 1
+
         except ImpossibleToFinishException:
             pass
-            # print("FAIL")
+        except CoveringTimeoutException:
+            timeout_count += 1
 
-    # print(f"\nResults: successful {success_count}/{TEST_COUNT}")
-    return success_count
+    return (success_count, timeout_count)
 
 
 CSV_FILE = "experiment_results.csv"
@@ -43,7 +46,7 @@ MAX_SIZE = 30
 TEST_COUNT = 1000
 
 with open(CSV_FILE, "w") as out_file:
-    out_file.write("w,h,ts,success\n")
+    out_file.write("w,h,ts,success,timeouts\n")
 
     for w in range(MIN_SIZE, MAX_SIZE + 1):
         for h in range(MIN_SIZE, MAX_SIZE + 1):
@@ -51,6 +54,6 @@ with open(CSV_FILE, "w") as out_file:
 
             for ts in non_trivial_divisors(size):
                 print(f"Measuring w={w}, h={h}, ts={ts}...")
-                success = measure(w, h, ts, TEST_COUNT)
-                print(f"  OK: {success}/{TEST_COUNT}")
-                out_file.write(f"{w},{h},{ts},{success}\n")
+                success, timeouts = measure(w, h, ts, TEST_COUNT)
+                print(f"  OK: {success}/{TEST_COUNT}\t({timeouts} timeouts)")
+                out_file.write(f"{w},{h},{ts},{success},{timeouts}\n")
