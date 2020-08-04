@@ -209,27 +209,33 @@ class CoveringModel:
         """
 
         def dfs(x, y):
-            if x < 0 or y < 0 or x >= self.width or y >= self.height:
-                return 0
-            if state[y][x] is not None:
-                return 0
-            if visited[y][x]:
-                return 0
+            stack = [(x, y)]
+            component_size = 0
 
-            visited[y][x] = True
-            count = 1  # Me
+            while stack:
+                x, y = stack.pop()
 
-            neighbors = [
-                (x - 1, y),
-                (x + 1, y),
-                (x, y - 1),
-                (x, y + 1)
-            ]
+                if x < 0 or y < 0 or x >= self.width or y >= self.height:
+                    continue
+                if state[y][x] is not None:
+                    continue
+                if visited[y][x]:
+                    continue
 
-            for x2, y2 in neighbors:
-                count += dfs(x2, y2)
+                visited[y][x] = True
+                component_size += 1  # Me
 
-            return count
+                neighbors = [
+                    (x - 1, y),
+                    (x + 1, y),
+                    (x, y - 1),
+                    (x, y + 1)
+                ]
+
+                for x2, y2 in neighbors:
+                    stack.append((x2, y2))
+
+            return component_size
 
         if state is None:
             state = self.state
