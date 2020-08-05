@@ -115,11 +115,8 @@ class CoveringModel:
                     return (i, j)
 
         return None
-
-    def _empty_neighbors(self, pos, state=None):
-        if state is None:
-            state = self.state
-
+    
+    def _neighbors(self, pos):
         neighbors = [
             (pos[0] - 1, pos[1]),
             (pos[0] + 1, pos[1]),
@@ -127,11 +124,18 @@ class CoveringModel:
             (pos[0], pos[1] + 1)
         ]
 
-        result = set()
-
         for x, y in neighbors:
             if x < 0 or y < 0 or x >= self.width or y >= self.height:
                 continue
+            yield (x, y)
+
+    def _empty_neighbors(self, pos, state=None):
+        if state is None:
+            state = self.state
+
+        result = set()
+
+        for x, y in self._neighbors(pos):
             if state[y][x] is not None:
                 continue
             result.add((x, y))
@@ -215,8 +219,6 @@ class CoveringModel:
             while stack:
                 x, y = stack.pop()
 
-                if x < 0 or y < 0 or x >= self.width or y >= self.height:
-                    continue
                 if state[y][x] is not None:
                     continue
                 if visited[y][x]:
@@ -225,14 +227,7 @@ class CoveringModel:
                 visited[y][x] = True
                 component_size += 1  # Me
 
-                neighbors = [
-                    (x - 1, y),
-                    (x + 1, y),
-                    (x, y - 1),
-                    (x, y + 1)
-                ]
-
-                for x2, y2 in neighbors:
+                for x2, y2 in self._neighbors((x, y)):
                     stack.append((x2, y2))
 
             return component_size
