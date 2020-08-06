@@ -58,6 +58,12 @@ class CoveringState:
         x, y = pos
         self._state[y][x] = val
 
+    def raw_data(self):
+        """
+        Returns data as a list of list, as in previous versions
+        """
+        return self._state
+
 
 class CoveringModel:
     """
@@ -409,7 +415,7 @@ class App():
         self.model.set_block_size(self.block_size)
 
         self.model.reset()
-        self.area.update(self.model.state)
+        self.area.update(self.model.state.raw_data())
 
     def step(self):
         try:
@@ -418,7 +424,7 @@ class App():
             mb.showerror("Impossible to finish",
                          "There are no more valid steps")
 
-        self.area.update(self.model.state)
+        self.area.update(self.model.state.raw_data())
 
 
 if __name__ == "__main__":
