@@ -145,6 +145,14 @@ class CoveringModel:
 
         return None
 
+    def _all_positions(self, state=None):
+        if state is None:
+            state = self.state
+
+        for x in range(self.width):
+            for y in range(self.height):
+                yield (x, y)
+
     def _neighbors(self, pos):
         neighbors = [
             (pos[0] - 1, pos[1]),
@@ -254,8 +262,8 @@ class CoveringModel:
                 visited[pos] = True
                 component_size += 1  # Me
 
-                for x2, y2 in self._neighbors((x, y)):
-                    stack.append((x2, y2))
+                for nei_pos in self._neighbors(pos):
+                    stack.append(nei_pos)
 
             return component_size
 
@@ -265,15 +273,12 @@ class CoveringModel:
         # A little hack, but provides exactly the API we need
         visited = CoveringState(self.width, self.height)
 
-        for y in range(self.height):
-            for x in range(self.width):
-                pos = (x, y)
-
-                if visited[pos] or state[pos] is not None:
-                    continue
-                component_size = dfs(pos)
-                if component_size % self.block_size != 0:
-                    return False
+        for pos in self._all_positions():
+            if visited[pos] or state[pos] is not None:
+                continue
+            component_size = dfs(pos)
+            if component_size % self.block_size != 0:
+                return False
 
         return True
 
