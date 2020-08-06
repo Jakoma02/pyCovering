@@ -30,6 +30,35 @@ class CoveringTimeoutException(Exception):
     """
 
 
+class CoveringState:
+    def __init__(self, width, height):
+        self.reset(width, height)
+
+    def reset(self, width, height):
+        self._state = [[None for _ in range(width)]
+                       for _ in range(height)]
+
+    def __getitem__(self, pos):
+        """
+        Get state of position pos
+
+        This allows to use `model[pos]` without losing genericity,
+        only this method needs to be reimplemented
+        """
+        x, y = pos
+        return self._state[y][x]
+
+    def __setitem__(self, pos, val):
+        """
+        Set state of position pos
+
+        This allows to use `model[pos] = val` without losing genericity,
+        only this method needs to be reimplemented
+        """
+        x, y = pos
+        self._state[y][x] = val
+
+
 class CoveringModel:
     """
     Model encapsulating all bussiness logic
@@ -39,6 +68,7 @@ class CoveringModel:
         self.width = width
         self.height = height
         self.block_size = block_size
+        self.state = CoveringState(width, height)
 
         # Set timeout handler
         signal.signal(signal.SIGALRM, self._timeout_handler)
@@ -62,8 +92,7 @@ class CoveringModel:
         """
         Removes all tiles, resets position
         """
-        self.state = [[None for _ in range(self.width)]
-                      for _ in range(self.height)]
+        self.state.reset(self.width, self.height)
         self.pos = (0, 0)
         self.step_nu = 1
 
@@ -82,8 +111,7 @@ class CoveringModel:
             raise ImpossibleToFinishException("There are no more valid steps")
 
         for pos in valid:
-            x, y = pos
-            self.state[y][x] = self.step_nu
+            self.state[pos] = self.step_nu
 
         self.step_nu += 1
 
@@ -111,11 +139,12 @@ class CoveringModel:
         for j in range(y, self.height):
             first = x if j == y else 0
             for i in range(first, self.width):
-                if self.state[j][i] is None:
-                    return (i, j)
+                new_pos = (i, j)
+                if self.state[new_pos] is None:
+                    return new_pos
 
         return None
-    
+
     def _neighbors(self, pos):
         neighbors = [
             (pos[0] - 1, pos[1]),
@@ -135,10 +164,10 @@ class CoveringModel:
 
         result = set()
 
-        for x, y in self._neighbors(pos):
-            if state[y][x] is not None:
+        for pos in self._neighbors(pos):
+            if state[pos] is not None:
                 continue
-            result.add((x, y))
+            result.add(pos)
 
         return result
 
@@ -173,8 +202,7 @@ class CoveringModel:
         if pos is None:
             return None
 
-        x, y = pos
-        state_copy[y][x] = -1
+        state_copy[pos] = -1
 
         new_gen = iter(self._group_neighbors(curr_generated, state=state_copy))
         iterables.append(new_gen)
@@ -182,17 +210,16 @@ class CoveringModel:
         while iterables:
             last_gen = iterables[-1]
             try:
-                generated = next(last_gen)
-                curr_generated.append(generated)
+                generated_pos = next(last_gen)
+                curr_generated.append(generated_pos)
 
-                x, y = generated
-                state_copy[y][x] = -1  # Placeholder
+                state_copy[generated_pos] = -1  # Placeholder
 
                 if len(curr_generated) == self.block_size:
                     if not check_finishable or \
                            self._is_finishable(state=state_copy):
                         return tuple(curr_generated)
-                    state_copy[y][x] = None
+                    state_copy[generated_pos] = None
                     curr_generated.pop()
                 else:
                     new_gen = iter(self._group_neighbors(curr_generated,
@@ -201,8 +228,8 @@ class CoveringModel:
 
             except StopIteration:
                 iterables.pop()
-                x, y = curr_generated.pop()
-                state_copy[y][x] = None
+                last_pos = curr_generated.pop()
+                state_copy[last_pos] = None
 
         return None
 
@@ -212,19 +239,19 @@ class CoveringModel:
         by block_size
         """
 
-        def dfs(x, y):
-            stack = [(x, y)]
+        def dfs(pos):
+            stack = [pos]
             component_size = 0
 
             while stack:
-                x, y = stack.pop()
+                pos = stack.pop()
 
-                if state[y][x] is not None:
+                if state[pos] is not None:
                     continue
-                if visited[y][x]:
+                if visited[pos]:
                     continue
 
-                visited[y][x] = True
+                visited[pos] = True
                 component_size += 1  # Me
 
                 for x2, y2 in self._neighbors((x, y)):
@@ -235,14 +262,16 @@ class CoveringModel:
         if state is None:
             state = self.state
 
-        visited = [[False for _ in range(self.width)]
-                   for _ in range(self.height)]
+        # A little hack, but provides exactly the API we need
+        visited = CoveringState(self.width, self.height)
 
         for y in range(self.height):
             for x in range(self.width):
-                if visited[y][x] or state[y][x] is not None:
+                pos = (x, y)
+
+                if visited[pos] or state[pos] is not None:
                     continue
-                component_size = dfs(x, y)
+                component_size = dfs(pos)
                 if component_size % self.block_size != 0:
                     return False
 
