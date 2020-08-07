@@ -30,7 +30,7 @@ class CoveringTimeoutException(Exception):
     """
 
 
-class CoveringState:
+class TwoDCoveringState:
     def __init__(self, width, height):
         self.reset(width, height)
 
@@ -65,45 +65,43 @@ class CoveringState:
         return self._state
 
 
-class CoveringModel:
+class GeneralCoveringModel:
     """
     Model encapsulating all bussiness logic
     """
 
-    def __init__(self, width, height, block_size):
-        self.width = width
-        self.height = height
+    def __init__(self, block_size):
         self.block_size = block_size
-        self.state = CoveringState(width, height)
+        self.state = self._get_state_container()
 
         # Set timeout handler
         signal.signal(signal.SIGALRM, self._timeout_handler)
 
         self.reset()
 
-    def set_size(self, width, height):
-        """
-        Sets the area width and height (this resets current state)
-        """
-        self.width = width
-        self.height = height
+    def _getStateContainer(self):
+        raise NotImplementedError
+
+    def reset(self):
+        raise NotImplementedError
+
+    def is_filled(self):
+        raise NotImplementedError
+
+    def _next_empty(self, pos):
+        raise NotImplementedError
+
+    def _all_positions(self, state=None):
+        raise NotImplementedError
+
+    def _neighbors(self, pos):
+        raise NotImplementedError
 
     def set_block_size(self, size):
         """
         Sets size of the tile groups (this resets current state)
         """
         self.block_size = size
-
-    def reset(self):
-        """
-        Removes all tiles, resets position
-        """
-        self.state.reset(self.width, self.height)
-        self.pos = (0, 0)
-        self.step_nu = 1
-
-    def is_filled(self):
-        return (self.step_nu - 1) * self.block_size == self.width * self.height
 
     def add_random_tile(self, check_finishable=True):
         """
@@ -135,42 +133,6 @@ class CoveringModel:
 
     def _timeout_handler(self, sig, frame):
         raise CoveringTimeoutException("Time exceeded")
-
-    def _next_empty(self, pos):
-        if pos is None:
-            return None
-
-        x, y = pos
-
-        for j in range(y, self.height):
-            first = x if j == y else 0
-            for i in range(first, self.width):
-                new_pos = (i, j)
-                if self.state[new_pos] is None:
-                    return new_pos
-
-        return None
-
-    def _all_positions(self, state=None):
-        if state is None:
-            state = self.state
-
-        for x in range(self.width):
-            for y in range(self.height):
-                yield (x, y)
-
-    def _neighbors(self, pos):
-        neighbors = [
-            (pos[0] - 1, pos[1]),
-            (pos[0] + 1, pos[1]),
-            (pos[0], pos[1] - 1),
-            (pos[0], pos[1] + 1)
-        ]
-
-        for x, y in neighbors:
-            if x < 0 or y < 0 or x >= self.width or y >= self.height:
-                continue
-            yield (x, y)
 
     def _empty_neighbors(self, pos, state=None):
         if state is None:
@@ -277,7 +239,7 @@ class CoveringModel:
             state = self.state
 
         # A little hack, but provides exactly the API we need
-        visited = CoveringState(self.width, self.height)
+        visited = self._get_state_container()
 
         for pos in self._all_positions():
             if visited[pos] or state[pos] is not None:
@@ -287,6 +249,73 @@ class CoveringModel:
                 return False
 
         return True
+
+
+class TwoDCoveringModel(GeneralCoveringModel):
+    """
+    Specialized version of GeneralCoveringModel that covers the plane
+    """
+    def __init__(self, width, height, block_size):
+        self.width = width
+        self.height = height
+        super().__init__(block_size)
+
+    def _get_state_container(self):
+        return TwoDCoveringState(self.width, self.height)
+
+    def set_size(self, width, height):
+        """
+        Sets the area width and height (this resets current state)
+        """
+        self.width = width
+        self.height = height
+
+    def reset(self):
+        """
+        Removes all tiles, resets position
+        """
+        self.state.reset(self.width, self.height)
+        self.pos = (0, 0)
+        self.step_nu = 1
+
+    def is_filled(self):
+        return (self.step_nu - 1) * self.block_size == self.width * self.height
+
+    def _next_empty(self, pos):
+        if pos is None:
+            return None
+
+        x, y = pos
+
+        for j in range(y, self.height):
+            first = x if j == y else 0
+            for i in range(first, self.width):
+                new_pos = (i, j)
+                if self.state[new_pos] is None:
+                    return new_pos
+
+        return None
+
+    def _all_positions(self, state=None):
+        if state is None:
+            state = self.state
+
+        for x in range(self.width):
+            for y in range(self.height):
+                yield (x, y)
+
+    def _neighbors(self, pos):
+        neighbors = [
+            (pos[0] - 1, pos[1]),
+            (pos[0] + 1, pos[1]),
+            (pos[0], pos[1] - 1),
+            (pos[0], pos[1] + 1)
+        ]
+
+        for x, y in neighbors:
+            if x < 0 or y < 0 or x >= self.width or y >= self.height:
+                continue
+            yield (x, y)
 
 
 class Area(tk.Canvas):
@@ -344,8 +373,8 @@ class App():
         self.area = Area(master, self.INIT_WIDTH, self.INIT_WIDTH)
         self.area.pack(pady=100, padx=100)
 
-        self.model = CoveringModel(self.INIT_WIDTH, self.INIT_HEIGHT,
-                                   self.INIT_BLOCK_SIZE)
+        self.model = TwoDCoveringModel(self.INIT_WIDTH, self.INIT_HEIGHT,
+                                       self.INIT_BLOCK_SIZE)
 
         self.width = self.INIT_WIDTH
         self.height = self.INIT_HEIGHT
