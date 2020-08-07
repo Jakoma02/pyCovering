@@ -30,41 +30,6 @@ class CoveringTimeoutException(Exception):
     """
 
 
-class TwoDCoveringState:
-    def __init__(self, width, height):
-        self.reset(width, height)
-
-    def reset(self, width, height):
-        self._state = [[None for _ in range(width)]
-                       for _ in range(height)]
-
-    def __getitem__(self, pos):
-        """
-        Get state of position pos
-
-        This allows to use `model[pos]` without losing genericity,
-        only this method needs to be reimplemented
-        """
-        x, y = pos
-        return self._state[y][x]
-
-    def __setitem__(self, pos, val):
-        """
-        Set state of position pos
-
-        This allows to use `model[pos] = val` without losing genericity,
-        only this method needs to be reimplemented
-        """
-        x, y = pos
-        self._state[y][x] = val
-
-    def raw_data(self):
-        """
-        Returns data as a list of list, as in previous versions
-        """
-        return self._state
-
-
 class GeneralCoveringModel:
     """
     Model encapsulating all bussiness logic
@@ -249,6 +214,41 @@ class GeneralCoveringModel:
                 return False
 
         return True
+
+
+class TwoDCoveringState:
+    def __init__(self, width, height):
+        self.reset(width, height)
+
+    def reset(self, width, height):
+        self._state = [[None for _ in range(width)]
+                       for _ in range(height)]
+
+    def __getitem__(self, pos):
+        """
+        Get state of position pos
+
+        This allows to use `model[pos]` without losing genericity,
+        only this method needs to be reimplemented
+        """
+        x, y = pos
+        return self._state[y][x]
+
+    def __setitem__(self, pos, val):
+        """
+        Set state of position pos
+
+        This allows to use `model[pos] = val` without losing genericity,
+        only this method needs to be reimplemented
+        """
+        x, y = pos
+        self._state[y][x] = val
+
+    def raw_data(self):
+        """
+        Returns data as a list of list, as in previous versions
+        """
+        return self._state
 
 
 class TwoDCoveringModel(GeneralCoveringModel):
