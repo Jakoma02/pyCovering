@@ -353,24 +353,28 @@ class ThreeDCoveringState:
 
 
 class PyramidCoveringModel(GeneralCoveringModel):
-    def __init__(self, xs, ys, zs, block_size):
-        self.xs = xs
-        self.ys = ys
-        self.zs = zs
+    def __init__(self, pyramid_size, block_size):
+        self.size = pyramid_size
 
         super().__init__(block_size)
 
     def reset(self):
-        self.state.reset(self.xs, self.ys, self.zs)
+        def layer_size(layer):
+            return (1 + layer) * layer // 2
+
+        self.state.reset(self.size)
         self.pos = (0, 0, 0)
         self.step_nu = 1
-        self._total_size = self.xs * self.ys * self.zs
+
+        layers = self.size
+
+        self._total_size = sum(layer_size(x) for x in range(1, layers + 1))
 
     def is_filled(self):
         return (self.step_nu - 1) * self.block_size == self._total_size
 
     def _get_state_container(self):
-        return ThreeDCoveringState(self.xs, self.ys, self.zs)
+        return ThreeDCoveringState(self.size, self.size, self.size)
 
     def _next_position(self, pos):
         x, y, z = pos
@@ -391,10 +395,11 @@ class PyramidCoveringModel(GeneralCoveringModel):
         if state is None:
             state = self.state
 
-        for x in range(self.xs):
-            for y in range(self.ys):
-                for z in range(self.zs):
-                    yield (x, y, z)
+        pos = (0, 0, 0)
+
+        while pos is not None:
+            yield pos
+            pos = self._next_position(pos)
 
     def _is_valid_position(self, pos):
         x, y, z = pos
@@ -402,10 +407,10 @@ class PyramidCoveringModel(GeneralCoveringModel):
         if x < 0 or y < 0 or z < 0:
             return False
 
-        if z >= self.zs:
+        if z >= self.size:
             return False
 
-        level_size = self.zs - z
+        level_size = self.size - z
 
         if x >= level_size:
             return False
