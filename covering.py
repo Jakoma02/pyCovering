@@ -362,7 +362,7 @@ class PyramidCoveringModel(GeneralCoveringModel):
         def layer_size(layer):
             return (1 + layer) * layer // 2
 
-        self.state.reset(self.size)
+        self.state.reset(self.size, self.size, self.size)
         self.pos = (0, 0, 0)
         self.step_nu = 1
 
