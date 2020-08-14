@@ -380,8 +380,8 @@ class PyramidCoveringModel(GeneralCoveringModel):
         x, y, z = pos
 
         options = [
-            (x, y + 1, z),
-            (x + 1, 0, z),
+            (x + 1, y, z),
+            (0, y + 1, z),
             (0, 0, z + 1)
         ]
 
@@ -436,12 +436,12 @@ class PyramidCoveringModel(GeneralCoveringModel):
 
             # Above
             (x, y - 1, z + 1),
-            (x - 1, y - 1, z + 1),
+            (x - 1, y, z + 1),
             (x, y, z + 1),
 
             # Below
             (x, y, z - 1),
-            (x + 1, y + 1, z - 1),
+            (x + 1, y, z - 1),
             (x, y + 1, z - 1)
         ]
 
