@@ -30,41 +30,6 @@ class CoveringTimeoutException(Exception):
     """
 
 
-class TwoDCoveringState:
-    def __init__(self, width, height):
-        self.reset(width, height)
-
-    def reset(self, width, height):
-        self._state = [[None for _ in range(width)]
-                       for _ in range(height)]
-
-    def __getitem__(self, pos):
-        """
-        Get state of position pos
-
-        This allows to use `model[pos]` without losing genericity,
-        only this method needs to be reimplemented
-        """
-        x, y = pos
-        return self._state[y][x]
-
-    def __setitem__(self, pos, val):
-        """
-        Set state of position pos
-
-        This allows to use `model[pos] = val` without losing genericity,
-        only this method needs to be reimplemented
-        """
-        x, y = pos
-        self._state[y][x] = val
-
-    def raw_data(self):
-        """
-        Returns data as a list of list, as in previous versions
-        """
-        return self._state
-
-
 class GeneralCoveringModel:
     """
     Model encapsulating all bussiness logic
@@ -79,7 +44,7 @@ class GeneralCoveringModel:
 
         self.reset()
 
-    def _getStateContainer(self):
+    def _get_state_container(self):
         raise NotImplementedError
 
     def reset(self):
@@ -88,7 +53,7 @@ class GeneralCoveringModel:
     def is_filled(self):
         raise NotImplementedError
 
-    def _next_empty(self, pos):
+    def _next_position(self, pos):
         raise NotImplementedError
 
     def _all_positions(self, state=None):
@@ -96,6 +61,16 @@ class GeneralCoveringModel:
 
     def _neighbors(self, pos):
         raise NotImplementedError
+
+    def _next_empty(self, pos):
+        while True:
+            if pos is None:
+                return None
+
+            if self.state[pos] is None:
+                return pos
+
+            pos = self._next_position(pos)
 
     def set_block_size(self, size):
         """
@@ -250,6 +225,43 @@ class GeneralCoveringModel:
 
         return True
 
+# 2D
+
+
+class TwoDCoveringState:
+    def __init__(self, width, height):
+        self.reset(width, height)
+
+    def reset(self, width, height):
+        self._state = [[None for _ in range(width)]
+                       for _ in range(height)]
+
+    def __getitem__(self, pos):
+        """
+        Get state of position pos
+
+        This allows to use `model[pos]` without losing genericity,
+        only this method needs to be reimplemented
+        """
+        x, y = pos
+        return self._state[y][x]
+
+    def __setitem__(self, pos, val):
+        """
+        Set state of position pos
+
+        This allows to use `model[pos] = val` without losing genericity,
+        only this method needs to be reimplemented
+        """
+        x, y = pos
+        self._state[y][x] = val
+
+    def raw_data(self):
+        """
+        Returns data as a list of list, as in previous versions
+        """
+        return self._state
+
 
 class TwoDCoveringModel(GeneralCoveringModel):
     """
@@ -270,6 +282,8 @@ class TwoDCoveringModel(GeneralCoveringModel):
         self.width = width
         self.height = height
 
+        self.reset()
+
     def reset(self):
         """
         Removes all tiles, resets position
@@ -281,18 +295,16 @@ class TwoDCoveringModel(GeneralCoveringModel):
     def is_filled(self):
         return (self.step_nu - 1) * self.block_size == self.width * self.height
 
-    def _next_empty(self, pos):
+    def _next_position(self, pos):
         if pos is None:
             return None
 
         x, y = pos
 
-        for j in range(y, self.height):
-            first = x if j == y else 0
-            for i in range(first, self.width):
-                new_pos = (i, j)
-                if self.state[new_pos] is None:
-                    return new_pos
+        if x < self.width - 1:
+            return (x + 1, y)
+        if y < self.height - 1:
+            return (0, y + 1)
 
         return None
 
@@ -316,6 +328,126 @@ class TwoDCoveringModel(GeneralCoveringModel):
             if x < 0 or y < 0 or x >= self.width or y >= self.height:
                 continue
             yield (x, y)
+
+# 3D
+
+
+class ThreeDCoveringState:
+    def __init__(self, xs, ys, zs):
+        self.reset(xs, ys, zs)
+
+    def reset(self, xs, ys, zs):
+        self._state = [[[None for _ in range(zs)]
+                        for _ in range(ys)]
+                       for _ in range(xs)]
+
+    def __getitem__(self, pos):
+        x, y, z = pos
+
+        return self._state[x][y][z]
+
+    def __setitem__(self, pos, val):
+        x, y, z = pos
+
+        self._state[x][y][z] = val
+
+
+class PyramidCoveringModel(GeneralCoveringModel):
+    def __init__(self, pyramid_size, block_size):
+        self.size = pyramid_size
+
+        super().__init__(block_size)
+
+    def reset(self):
+        def layer_size(layer):
+            return (1 + layer) * layer // 2
+
+        self.state.reset(self.size, self.size, self.size)
+        self.pos = (0, 0, 0)
+        self.step_nu = 1
+
+        layers = self.size
+
+        self._total_size = sum(layer_size(x) for x in range(1, layers + 1))
+
+    def is_filled(self):
+        return (self.step_nu - 1) * self.block_size == self._total_size
+
+    def _get_state_container(self):
+        return ThreeDCoveringState(self.size, self.size, self.size)
+
+    def _next_position(self, pos):
+        x, y, z = pos
+
+        options = [
+            (x + 1, y, z),
+            (0, y + 1, z),
+            (0, 0, z + 1)
+        ]
+
+        for opt in options:
+            if self._is_valid_position(opt):
+                return opt
+
+        return None
+
+    def _all_positions(self, state=None):
+        if state is None:
+            state = self.state
+
+        pos = (0, 0, 0)
+
+        while pos is not None:
+            yield pos
+            pos = self._next_position(pos)
+
+    def _is_valid_position(self, pos):
+        x, y, z = pos
+
+        if x < 0 or y < 0 or z < 0:
+            return False
+
+        if z >= self.size:
+            return False
+
+        level_size = self.size - z
+
+        if x >= level_size:
+            return False
+
+        line_size = level_size - x
+
+        if y >= line_size:
+            return False
+
+        return True
+
+    def _neighbors(self, pos):
+        x, y, z = pos
+
+        neighbors = [
+            # Same level
+            (x, y + 1, z),
+            (x + 1, y, z),
+            (x + 1, y - 1, z),
+            (x, y - 1, z),
+            (x - 1, y, z),
+            (x - 1, y + 1, z),
+
+            # Above
+            (x, y - 1, z + 1),
+            (x - 1, y, z + 1),
+            (x, y, z + 1),
+
+            # Below
+            (x, y, z - 1),
+            (x + 1, y, z - 1),
+            (x, y + 1, z - 1)
+        ]
+
+        for pos in neighbors:
+            if self._is_valid_position(pos):
+                yield pos
 
 
 class Area(tk.Canvas):
