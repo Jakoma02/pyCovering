@@ -1,5 +1,5 @@
-from covering import CoveringModel, ImpossibleToFinishException, \
-                     CoveringTimeoutException
+from covering.models import TwoDCoveringModel, ImpossibleToFinishException, \
+                            CoveringTimeoutException
 
 WIDTH = 20
 HEIGHT = 20
@@ -7,7 +7,7 @@ TILE_SIZE = 4
 
 TIMEOUT = 30
 
-model = CoveringModel(WIDTH, HEIGHT, TILE_SIZE)
+model = TwoDCoveringModel(WIDTH, HEIGHT, TILE_SIZE)
 
 
 def non_trivial_divisors(x):

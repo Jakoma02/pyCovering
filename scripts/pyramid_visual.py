@@ -2,7 +2,7 @@ from vpython import sphere, arrow, vec, rate, scene, color
 from math import sqrt
 from time import sleep
 from random import random
-from covering import PyramidCoveringModel, ImpossibleToFinishException
+from covering.models import PyramidCoveringModel, ImpossibleToFinishException
 
 RADIUS = 1
 
