@@ -13,7 +13,7 @@ class TwoDPrintView(GeneralView):
         width = max_len + 1
 
         for row in data:
-            p_row = " ".join([str(x).ljust(width) for x in row])
+            p_row = "".join([str(x).center(width) for x in row])
             print(p_row)
 
 
@@ -33,7 +33,7 @@ class PyramidPrintView(GeneralView):
             for i, row in enumerate(layer_data):
                 row_data = row[:l-i]
                 print(i * offset * " ", end="")
-                row = " ".join([str(x).ljust(width) for x in row_data])
+                row = "".join([str(x).ljust(width) for x in row_data])
                 print(row)
 
         data = model.state._state  # :)
