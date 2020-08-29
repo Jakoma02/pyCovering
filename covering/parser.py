@@ -2,7 +2,7 @@
 
 import argparse
 from covering.models import PyramidCoveringModel, TwoDCoveringModel
-from covering.views import TwoDPrintView, PyramidPrintView
+from covering.views import TwoDPrintView, PyramidPrintView, PyramidVisualView
 
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(
@@ -26,6 +26,11 @@ general_subparser.add_argument(
     "-b",
     type=int,
     default=4
+)
+
+general_subparser.add_argument(
+    "--visual",
+    action="store_true"
 )
 
 
@@ -63,7 +68,10 @@ check_args(args)
 
 if args.model == "pyramid":
     model = PyramidCoveringModel(args.size, args.block)
-    view = PyramidPrintView()
+    if args.visual:
+        view = PyramidVisualView()
+    else:
+        view = PyramidPrintView()
 elif args.model == "2d":
     model = TwoDCoveringModel(args.width, args.height, args.block)
     view = TwoDPrintView()
