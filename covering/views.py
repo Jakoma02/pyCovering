@@ -1,3 +1,8 @@
+from random import random
+from math import sqrt
+import vpython as vp
+
+
 class GeneralView:
     def show(self, model):
         raise NotImplementedError
@@ -48,3 +53,46 @@ class PyramidPrintView(GeneralView):
             layer_data = layer[:l-i]
             show_layer(layer_data, offset)
 
+
+class PyramidVisualView(GeneralView):
+    RADIUS = 1
+
+    def __init__(self):
+        self.colors = dict()
+        self.spheres = []
+
+    @staticmethod
+    def _random_color():
+        return vp.vec(random(), random(), random())
+
+    @staticmethod
+    def _real_coords(pos):
+        x, y, z = pos
+
+        rz = sqrt(8/3) * PyramidVisualView.RADIUS * z
+
+        ry_start = (sqrt(3) / 3) * PyramidVisualView.RADIUS * z  # Layer offset
+        ry = ry_start + sqrt(3) * PyramidVisualView.RADIUS * y
+
+        rx_start = PyramidVisualView.RADIUS * (y + z)
+        rx = rx_start + 2 * x * PyramidVisualView.RADIUS
+
+        return vp.vec(rx, ry, rz)
+
+    def show(self, model):
+        for pos in model._all_positions():
+            val = model.state[pos]
+
+            if val is None:
+                continue
+
+            if val not in self.colors:
+                self.colors[val] = PyramidVisualView._random_color()
+            color = self.colors[val]
+
+            rpos = PyramidVisualView._real_coords(pos)
+            self.spheres.append(vp.sphere(
+                pos=rpos,
+                radius=PyramidVisualView.RADIUS,
+                color=color,
+                opacity=0.8))
