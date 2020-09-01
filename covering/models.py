@@ -1,3 +1,7 @@
+"""
+This module contains all covering models
+"""
+
 import signal  # Unix only!
 import random
 import copy
@@ -22,6 +26,8 @@ class GeneralCoveringModel:
     Model encapsulating all bussiness logic
     """
 
+    INITIAL_POSITION = None
+
     def __init__(self, block_size):
         self.block_size = block_size
         self.state = self._get_state_container()
@@ -30,17 +36,25 @@ class GeneralCoveringModel:
         self.step_nu = 1
 
         # Set timeout handler
-        signal.signal(signal.SIGALRM, self._timeout_handler)
+        signal.signal(signal.SIGALRM, GeneralCoveringModel._timeout_handler)
 
         self.reset()
 
-    def _get_state_container(self):
+    @classmethod
+    def _get_state_container(cls):
         raise NotImplementedError
 
     def reset(self):
+        """
+        Reset the model to initial (empty) state
+        """
         raise NotImplementedError
 
     def is_filled(self):
+        """
+        Returns true if there are no empty places
+        in the model
+        """
         raise NotImplementedError
 
     def _next_position(self, pos):
@@ -49,8 +63,17 @@ class GeneralCoveringModel:
     def _neighbors(self, pos):
         raise NotImplementedError
 
-    def all_positions(self, state=None):
-        raise NotImplementedError
+    def all_positions(self):
+        """
+        Returns an iterator of all valid positions
+        in the model
+        """
+
+        pos = self.INITIAL_POSITION
+
+        while pos is not None:
+            yield pos
+            pos = self._next_position(pos)
 
     def _next_empty(self, pos):
         while True:
@@ -96,7 +119,8 @@ class GeneralCoveringModel:
 
         signal.alarm(0)  # Cancel alarm
 
-    def _timeout_handler(self, sig, frame):
+    @staticmethod
+    def _timeout_handler(sig, frame):
         raise CoveringTimeoutException("Time exceeded")
 
     def _empty_neighbors(self, pos, state=None):
@@ -105,10 +129,10 @@ class GeneralCoveringModel:
 
         result = set()
 
-        for pos in self._neighbors(pos):
-            if state[pos] is not None:
+        for nbr in self._neighbors(pos):
+            if state[nbr] is not None:
                 continue
-            result.add(pos)
+            result.add(nbr)
 
         return result
 
@@ -203,7 +227,7 @@ class GeneralCoveringModel:
         if state is None:
             state = self.state
 
-        # A little hack, but provides exactly the API we need
+        # A little hack, but provides exactly the interface we need
         visited = self._get_state_container()
 
         for pos in self.all_positions():
@@ -217,6 +241,10 @@ class GeneralCoveringModel:
 
 
 class GeneralCoveringState:
+    """
+    An abstract class representing the state
+    of a covering model
+    """
     def __init__(self):
         self._state = None  # Implementations will redefine this
         raise NotImplementedError
@@ -239,6 +267,13 @@ class GeneralCoveringState:
         """
         raise NotImplementedError
 
+    def reset(self, *args):
+        """
+        Reset the covering state to initial (empty) state,
+        args may contain new state size
+        """
+        raise NotImplementedError
+
     def raw_data(self):
         """
         Return the inner state object
@@ -253,9 +288,14 @@ class GeneralCoveringState:
 
 
 class TwoDCoveringState(GeneralCoveringState):
+    """
+    The state of TwoDCoveringModel
+    """
+    # pylint: disable=super-init-not-called
     def __init__(self, width, height):
         self.reset(width, height)
 
+    # pylint: disable=arguments-differ
     def reset(self, width, height):
         self._state = [[None for _ in range(width)]
                        for _ in range(height)]
@@ -273,6 +313,9 @@ class TwoDCoveringModel(GeneralCoveringModel):
     """
     Specialized version of GeneralCoveringModel that covers the plane
     """
+
+    INITIAL_POSITION = (0, 0)
+
     def __init__(self, width, height, block_size):
         self.width = width
         self.height = height
@@ -314,14 +357,6 @@ class TwoDCoveringModel(GeneralCoveringModel):
 
         return None
 
-    def all_positions(self, state=None):
-        if state is None:
-            state = self.state
-
-        for x in range(self.width):
-            for y in range(self.height):
-                yield (x, y)
-
     def _neighbors(self, pos):
         neighbors = [
             (pos[0] - 1, pos[1]),
@@ -339,9 +374,14 @@ class TwoDCoveringModel(GeneralCoveringModel):
 
 
 class ThreeDCoveringState(GeneralCoveringState):
+    """
+    State of a general three-dimensional covering model
+    """
+    # pylint: disable=super-init-not-called
     def __init__(self, xs, ys, zs):
         self.reset(xs, ys, zs)
 
+    # pylint: disable=arguments-differ
     def reset(self, xs, ys, zs):
         self._state = [[[None for _ in range(zs)]
                         for _ in range(ys)]
@@ -359,6 +399,12 @@ class ThreeDCoveringState(GeneralCoveringState):
 
 
 class PyramidCoveringModel(GeneralCoveringModel):
+    """
+    Specialized version of GeneralCoveringModel that covers a 3D pyramid
+    """
+
+    INITIAL_POSITION = (0, 0, 0)
+
     def __init__(self, pyramid_size, block_size):
         self.size = pyramid_size
 
@@ -396,16 +442,6 @@ class PyramidCoveringModel(GeneralCoveringModel):
                 return opt
 
         return None
-
-    def all_positions(self, state=None):
-        if state is None:
-            state = self.state
-
-        pos = (0, 0, 0)
-
-        while pos is not None:
-            yield pos
-            pos = self._next_position(pos)
 
     def _is_valid_position(self, pos):
         x, y, z = pos
@@ -451,6 +487,6 @@ class PyramidCoveringModel(GeneralCoveringModel):
             (x, y + 1, z - 1)
         ]
 
-        for pos in neighbors:
-            if self._is_valid_position(pos):
-                yield pos
+        for nbr in neighbors:
+            if self._is_valid_position(nbr):
+                yield nbr
