@@ -213,17 +213,8 @@ class GeneralCoveringModel:
 
         return True
 
-# 2D
 
-
-class TwoDCoveringState:
-    def __init__(self, width, height):
-        self.reset(width, height)
-
-    def reset(self, width, height):
-        self._state = [[None for _ in range(width)]
-                       for _ in range(height)]
-
+class GeneralCoveringState:
     def __getitem__(self, pos):
         """
         Get state of position pos
@@ -231,8 +222,7 @@ class TwoDCoveringState:
         This allows to use `model[pos]` without losing genericity,
         only this method needs to be reimplemented
         """
-        x, y = pos
-        return self._state[y][x]
+        raise NotImplementedError
 
     def __setitem__(self, pos, val):
         """
@@ -241,14 +231,36 @@ class TwoDCoveringState:
         This allows to use `model[pos] = val` without losing genericity,
         only this method needs to be reimplemented
         """
-        x, y = pos
-        self._state[y][x] = val
+        raise NotImplementedError
 
     def raw_data(self):
         """
-        Returns data as a list of list, as in previous versions
+        Return the inner state object
+
+        This technically doesn't create a copy and just passes the object,
+        for now we trust that it will not be modified
         """
         return self._state
+
+
+# 2D
+
+
+class TwoDCoveringState(GeneralCoveringState):
+    def __init__(self, width, height):
+        self.reset(width, height)
+
+    def reset(self, width, height):
+        self._state = [[None for _ in range(width)]
+                       for _ in range(height)]
+
+    def __getitem__(self, pos):
+        x, y = pos
+        return self._state[y][x]
+
+    def __setitem__(self, pos, val):
+        x, y = pos
+        self._state[y][x] = val
 
 
 class TwoDCoveringModel(GeneralCoveringModel):
@@ -320,7 +332,7 @@ class TwoDCoveringModel(GeneralCoveringModel):
 # 3D
 
 
-class ThreeDCoveringState:
+class ThreeDCoveringState(GeneralCoveringState):
     def __init__(self, xs, ys, zs):
         self.reset(xs, ys, zs)
 
