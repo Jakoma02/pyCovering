@@ -43,10 +43,10 @@ class GeneralCoveringModel:
     def _next_position(self, pos):
         raise NotImplementedError
 
-    def _all_positions(self, state=None):
+    def _neighbors(self, pos):
         raise NotImplementedError
 
-    def _neighbors(self, pos):
+    def all_positions(self, state=None):
         raise NotImplementedError
 
     def _next_empty(self, pos):
@@ -58,6 +58,7 @@ class GeneralCoveringModel:
                 return pos
 
             pos = self._next_position(pos)
+
 
     def set_block_size(self, size):
         """
@@ -203,7 +204,7 @@ class GeneralCoveringModel:
         # A little hack, but provides exactly the API we need
         visited = self._get_state_container()
 
-        for pos in self._all_positions():
+        for pos in self.all_positions():
             if visited[pos] or state[pos] is not None:
                 continue
             component_size = dfs(pos)
@@ -295,7 +296,7 @@ class TwoDCoveringModel(GeneralCoveringModel):
 
         return None
 
-    def _all_positions(self, state=None):
+    def all_positions(self, state=None):
         if state is None:
             state = self.state
 
@@ -378,7 +379,7 @@ class PyramidCoveringModel(GeneralCoveringModel):
 
         return None
 
-    def _all_positions(self, state=None):
+    def all_positions(self, state=None):
         if state is None:
             state = self.state
 

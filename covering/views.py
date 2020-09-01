@@ -80,7 +80,7 @@ class PyramidVisualView(GeneralView):
         return vp.vec(rx, ry, rz)
 
     def show(self, model):
-        for pos in model._all_positions():
+        for pos in model.all_positions():
             val = model.state[pos]
 
             if val is None:
