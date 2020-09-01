@@ -1,11 +1,26 @@
 #!/usr/bin/env python3
 
+"""
+Program entrypoint, facilitates argument parsing.
+"""
+
 import argparse
-from covering.models import PyramidCoveringModel, TwoDCoveringModel
+import sys
+
+from covering.models import PyramidCoveringModel, \
+                            TwoDCoveringModel, \
+                            ImpossibleToFinishException, \
+                            CoveringTimeoutException
+
 from covering.views import TwoDPrintView, PyramidPrintView, PyramidVisualView
+
+COVERING_ATTEMPTS = 100
 
 
 def check_args(args, parser):
+    """
+    Verify argument validity
+    """
     if "model" not in args:
         parser.error("No model specified")
     if "size" in args and args.size <= 0:
@@ -17,10 +32,11 @@ def check_args(args, parser):
 
 
 def get_parser():
+    """
+    Return a configured parser
+    """
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(
-        metavar="model"
-    )
+    subparsers = parser.add_subparsers()
 
     general_subparser = argparse.ArgumentParser(add_help=False)
     general_subparser.add_argument(
@@ -32,6 +48,12 @@ def get_parser():
 
     general_subparser.add_argument(
         "--visual",
+        action="store_true"
+    )
+
+    general_subparser.add_argument(
+        "--verbose",
+        "-v",
         action="store_true"
     )
 
@@ -69,6 +91,9 @@ def get_parser():
 
 
 def main():
+    """
+    The program entrypoint
+    """
     parser = get_parser()
 
     args = parser.parse_args()
@@ -84,9 +109,30 @@ def main():
         model = TwoDCoveringModel(args.width, args.height, args.block)
         view = TwoDPrintView()
 
-    print(args)
-    model.try_cover()
-    view.show(model)
+    if args.verbose:
+        print(args)
+
+    for i in range(COVERING_ATTEMPTS):
+        if args.verbose:
+            print(f"Attempting to cover ({i + 1}th attempt)... ",
+                  end="", flush=True)
+
+        try:
+            model.reset()
+            model.try_cover()
+        except (ImpossibleToFinishException, CoveringTimeoutException):
+            if args.verbose:
+                print("FAILED")
+        else:
+            if args.verbose:
+                print("SUCCESS")
+            view.show(model)
+            break
+    else:
+        if args.verbose:
+            print("Covering failed.")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
