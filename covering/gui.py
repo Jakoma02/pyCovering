@@ -4,7 +4,7 @@ import tkinter as tk
 import tkinter.messagebox as mb
 import random
 
-from models import ImpossibleToFinishException, TwoDCoveringModel
+from covering.models import ImpossibleToFinishException, TwoDCoveringModel
 
 
 def random_color():
