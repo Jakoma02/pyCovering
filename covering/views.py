@@ -41,7 +41,7 @@ class PyramidPrintView(GeneralView):
                 row = "".join([str(x).ljust(width) for x in row_data])
                 print(row)
 
-        data = model.state._state  # :)
+        data = model.state.raw_data()
         max_len = PyramidPrintView._max_len(data)
 
         width = max_len + 1 if (max_len % 2 == 1) else max_len + 2
