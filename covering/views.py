@@ -34,9 +34,9 @@ class PyramidPrintView(GeneralView):
     def show(self, model):
         def show_layer(layer_data, offset):
             # The order is not neccessarily correct
-            l = len(layer_data)
+            layer_size = len(layer_data)
             for i, row in enumerate(layer_data):
-                row_data = row[:l-i]
+                row_data = row[:layer_size-i]
                 print(i * offset * " ", end="")
                 row = "".join([str(x).ljust(width) for x in row_data])
                 print(row)
@@ -46,11 +46,11 @@ class PyramidPrintView(GeneralView):
 
         width = max_len + 1 if (max_len % 2 == 1) else max_len + 2
         offset = width // 2
-        l = len(data)
+        data_size = len(data)
 
         for i, layer in enumerate(data):
             print(f"\nLayer {i + 1}\n")
-            layer_data = layer[:l-i]
+            layer_data = layer[:data_size-i]
             show_layer(layer_data, offset)
 
 
@@ -69,15 +69,16 @@ class PyramidVisualView(GeneralView):
     def _real_coords(pos):
         x, y, z = pos
 
-        rz = sqrt(8/3) * PyramidVisualView.RADIUS * z
+        real_z = sqrt(8/3) * PyramidVisualView.RADIUS * z
 
-        ry_start = (sqrt(3) / 3) * PyramidVisualView.RADIUS * z  # Layer offset
-        ry = ry_start + sqrt(3) * PyramidVisualView.RADIUS * y
+        # Layer offset
+        real_y_start = (sqrt(3) / 3) * PyramidVisualView.RADIUS * z
+        real_y = real_y_start + sqrt(3) * PyramidVisualView.RADIUS * y
 
-        rx_start = PyramidVisualView.RADIUS * (y + z)
-        rx = rx_start + 2 * x * PyramidVisualView.RADIUS
+        real_x_start = PyramidVisualView.RADIUS * (y + z)
+        real_x = real_x_start + 2 * x * PyramidVisualView.RADIUS
 
-        return vp.vec(rx, ry, rz)
+        return vp.vec(real_x, real_y, real_z)
 
     def show(self, model):
         for pos in model.all_positions():
