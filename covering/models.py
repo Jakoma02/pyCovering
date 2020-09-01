@@ -26,6 +26,9 @@ class GeneralCoveringModel:
         self.block_size = block_size
         self.state = self._get_state_container()
 
+        self.pos = None  # Implementations will change this in reset()
+        self.step_nu = 1
+
         # Set timeout handler
         signal.signal(signal.SIGALRM, self._timeout_handler)
 
@@ -58,7 +61,6 @@ class GeneralCoveringModel:
                 return pos
 
             pos = self._next_position(pos)
-
 
     def set_block_size(self, size):
         """
@@ -215,6 +217,10 @@ class GeneralCoveringModel:
 
 
 class GeneralCoveringState:
+    def __init__(self):
+        self._state = None  # Implementations will redefine this
+        raise NotImplementedError
+
     def __getitem__(self, pos):
         """
         Get state of position pos
