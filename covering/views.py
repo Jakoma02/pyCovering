@@ -1,14 +1,28 @@
+"""
+This module contains various views for all covering models
+"""
+
 from random import random
 from math import sqrt
 import vpython as vp
 
 
 class GeneralView:
+    """
+    An abstract class from which all views should inherit
+    """
     def show(self, model):
+        """
+        Show model data using the view
+        """
         raise NotImplementedError
 
 
 class TwoDPrintView(GeneralView):
+    """
+    A view for TwoDCoveringModel, prints the resulting
+    covering in console
+    """
     def show(self, model):
         data = model.state.raw_data()
 
@@ -23,6 +37,10 @@ class TwoDPrintView(GeneralView):
 
 
 class PyramidPrintView(GeneralView):
+    """
+    A view for PyramidCoveringModel, prints the resulting
+    covering in console
+    """
     @staticmethod
     def _max_len(data):
         vals = [x for layer in data for row in layer for x in row
@@ -55,6 +73,10 @@ class PyramidPrintView(GeneralView):
 
 
 class PyramidVisualView(GeneralView):
+    """
+    A view for PyramidCoveringModel, shows the resulting
+    covering in a browser window as a simple 3d visualization
+    """
     RADIUS = 1
 
     def __init__(self):
