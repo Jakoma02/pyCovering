@@ -17,6 +17,13 @@ from covering.views import TwoDPrintView, PyramidPrintView, PyramidVisualView
 COVERING_ATTEMPTS = 100
 
 
+class TooManyAttemptsException(Exception):
+    """
+    This exception is raised if the covering attempts limit
+    was reached
+    """
+
+
 def check_args(args, parser):
     """
     Verify argument validity
@@ -90,15 +97,10 @@ def get_parser():
     return parser
 
 
-def main():
+def get_model_view(args):
     """
-    The program entrypoint
+    Return a (model, view) tuple based on args
     """
-    parser = get_parser()
-
-    args = parser.parse_args()
-    check_args(args, parser)
-
     if args.model == "pyramid":
         model = PyramidCoveringModel(args.size, args.block)
         if args.visual:
@@ -109,10 +111,14 @@ def main():
         model = TwoDCoveringModel(args.width, args.height, args.block)
         view = TwoDPrintView()
 
-    if args.verbose:
-        print(args)
+    return (model, view)
 
-    for i in range(COVERING_ATTEMPTS):
+
+def do_covering(model, attempts, args):
+    """
+    Tries to cover the model `attempts` times
+    """
+    for i in range(attempts):
         if args.verbose:
             print(f"Attempting to cover ({i + 1}th attempt)... ",
                   end="", flush=True)
@@ -126,11 +132,30 @@ def main():
         else:
             if args.verbose:
                 print("SUCCESS")
-            view.show(model)
-            break
-    else:
-        if args.verbose:
-            print("Covering failed.")
+            return  # Success
+
+    raise TooManyAttemptsException("Too many failed attempts")
+
+
+def main():
+    """
+    The program entrypoint
+    """
+    parser = get_parser()
+
+    args = parser.parse_args()
+    check_args(args, parser)
+
+    if args.verbose:
+        print(f"Used arguments: {args}")
+
+    model, view = get_model_view(args)
+
+    try:
+        do_covering(model, COVERING_ATTEMPTS, args)
+        view.show(model)
+    except TooManyAttemptsException:
+        print("Attempt limit reached")
         sys.exit(1)
 
 
