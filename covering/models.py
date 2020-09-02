@@ -204,8 +204,8 @@ class GeneralCoveringModel:
         Returns a tuple of positions of a valid step
         starting with pos
 
-        `constraints` is a list of functions [position] -> bool, that return
-        true if the group fulfils the constraint
+        `constraints` is a list of functions (model, [position]) -> bool, that
+        return true if the group fulfils the constraint
         """
         iterables = []
         curr_generated = [pos]
