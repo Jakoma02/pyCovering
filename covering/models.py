@@ -115,9 +115,12 @@ class GeneralCoveringModel:
         self.step_nu += 1
         self._empty_positions -= len(tile)
 
-    def add_random_tile(self, check_finishable=True):
+    def add_random_tile(self, constraints, check_finishable=True):
         """
         Adds one tile (makes one step) with size in given bounds
+
+        `constraints` is a list of functions [position] -> bool, that return
+        true if the group fulfils the constraint
         """
 
         # This may need A LOT of memory if max_block_size - min_block_size
@@ -131,7 +134,7 @@ class GeneralCoveringModel:
         step_size = 0
 
         for step_size in all_sizes:
-            valid = self._valid_step(pos, step_size,
+            valid = self._valid_step(pos, step_size, constraints,
                                      check_finishable=check_finishable)
             if valid is not None:
                 break
@@ -148,15 +151,19 @@ class GeneralCoveringModel:
         """
         return self._empty_positions
 
-    def try_cover(self, check_finishable=True, timeout=0):
+    def try_cover(self, constraints, check_finishable=True, timeout=0):
         """
         Tries to cover the whole area with tiles, throws
         an exception if not successful
+
+        `constraints` is a list of functions [position] -> bool, that return
+        true if the group fulfils the constraint
         """
         signal.alarm(timeout)  # In seconds
 
         while not self.is_filled():
-            self.add_random_tile(check_finishable=check_finishable)
+            self.add_random_tile(constraints,
+                                 check_finishable=check_finishable)
 
         signal.alarm(0)  # Cancel alarm
 
@@ -195,10 +202,13 @@ class GeneralCoveringModel:
 
         return res_list
 
-    def _valid_step(self, pos, step_size, check_finishable=True):
+    def _valid_step(self, pos, step_size, constraints, check_finishable=True):
         """
         Returns a tuple of positions of a valid step
         starting with pos
+
+        `constraints` is a list of functions [position] -> bool, that return
+        true if the group fulfils the constraint
         """
         iterables = []
         curr_generated = [pos]
@@ -218,6 +228,12 @@ class GeneralCoveringModel:
             try:
                 generated_pos = next(last_gen)
                 curr_generated.append(generated_pos)
+
+                # Check that all constraints all fulfilled
+                if not all((cnstrt(curr_generated) for cnstrt in constraints)):
+                    # At least one constraint failed
+                    curr_generated.pop()
+                    continue
 
                 state_copy[generated_pos] = -1  # Placeholder
 
