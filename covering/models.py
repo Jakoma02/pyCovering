@@ -28,12 +28,13 @@ class GeneralCoveringModel:
 
     INITIAL_POSITION = None
 
-    def __init__(self, block_size):
-        self.block_size = block_size
+    def __init__(self, min_block_size, max_block_size):
+        self.min_block_size = min_block_size
+        self.max_block_size = max_block_size
+
         self.state = self._get_state_container()
 
         self.pos = None  # Implementations will change this in reset()
-        self.step_nu = 1
 
         # Set timeout handler
         signal.signal(signal.SIGALRM, GeneralCoveringModel._timeout_handler)
@@ -47,20 +48,31 @@ class GeneralCoveringModel:
     def reset(self):
         """
         Reset the model to initial (empty) state
+
+        This method is meant to be OVERRIDEN, this is just
+        a common part meant to be called as `super().reset()`
         """
-        raise NotImplementedError
+        self._empty_positions = self.total_positions()
+        self.step_nu = 1
 
     def is_filled(self):
         """
         Returns true if there are no empty places
         in the model
         """
-        raise NotImplementedError
+        return self._empty_positions == 0
 
     def _next_position(self, pos):
         raise NotImplementedError
 
     def _neighbors(self, pos):
+        raise NotImplementedError
+
+    def total_positions(self):
+        """
+        Returns the number of all positions
+        within the model
+        """
         raise NotImplementedError
 
     def all_positions(self):
@@ -85,27 +97,56 @@ class GeneralCoveringModel:
 
             pos = self._next_position(pos)
 
-    def set_block_size(self, size):
+    def set_block_size(self, min_size, max_size):
         """
         Sets size of the tile groups (this resets current state)
         """
-        self.block_size = size
+        self.min_block_size = min_size
+        self.max_block_size = max_size
+        self.reset()
 
-    def add_random_tile(self, check_finishable=True):
+    def add_tile(self, tile):
         """
-        Adds one tile (makes one step)
+        Add a new tile on positions from tile=[pos1, pos2, pos3, ...]
         """
-        pos = self._next_empty(self.pos)
-        self.pos = pos
-
-        valid = self._valid_step(pos, check_finishable=check_finishable)
-        if valid is None:
-            raise ImpossibleToFinishException("There are no more valid steps")
-
-        for pos in valid:
+        for pos in tile:
             self.state[pos] = self.step_nu
 
         self.step_nu += 1
+        self._empty_positions -= len(tile)
+
+    def add_random_tile(self, check_finishable=True):
+        """
+        Adds one tile (makes one step) with size in given bounds
+        """
+
+        # This may need A LOT of memory if max_block_size - min_block_size
+        # is large
+        all_sizes = list(range(self.min_block_size, self.max_block_size + 1))
+        random.shuffle(all_sizes)  # Try the sizes in a random order
+
+        pos = self._next_empty(self.pos)
+        self.pos = pos
+
+        step_size = 0
+
+        for step_size in all_sizes:
+            valid = self._valid_step(pos, step_size,
+                                     check_finishable=check_finishable)
+            if valid is not None:
+                break
+        else:
+            # No size led to a success
+            raise ImpossibleToFinishException(
+                "There are no more valid steps")
+
+        self.add_tile(valid)
+
+    def empty_positions(self):
+        """
+        Return the number of positions that are not filled yet
+        """
+        return self._empty_positions
 
     def try_cover(self, check_finishable=True, timeout=0):
         """
@@ -154,7 +195,7 @@ class GeneralCoveringModel:
 
         return res_list
 
-    def _valid_step(self, pos, check_finishable=True):
+    def _valid_step(self, pos, step_size, check_finishable=True):
         """
         Returns a tuple of positions of a valid step
         starting with pos
@@ -180,7 +221,7 @@ class GeneralCoveringModel:
 
                 state_copy[generated_pos] = -1  # Placeholder
 
-                if len(curr_generated) == self.block_size:
+                if len(curr_generated) == step_size:
                     if not check_finishable or \
                            self._is_finishable(state=state_copy):
                         return tuple(curr_generated)
@@ -200,8 +241,10 @@ class GeneralCoveringModel:
 
     def _is_finishable(self, state=None):
         """
-        Do a DFS and check that all component sizes are divisible
-        by block_size
+        Do a DFS and check that all component sizes are:
+
+        1) if min_block_size == max_block_size: divisible by block_size
+        2) else:                                larger than min_block_size
         """
 
         def dfs(pos):
@@ -234,7 +277,13 @@ class GeneralCoveringModel:
             if visited[pos] or state[pos] is not None:
                 continue
             component_size = dfs(pos)
-            if component_size % self.block_size != 0:
+
+            if self.min_block_size == self.max_block_size:
+                if component_size % self.min_block_size != 0:
+                    return False
+
+            # If block size is ambiguous
+            elif component_size < self.min_block_size:
                 return False
 
         return True
@@ -316,10 +365,10 @@ class TwoDCoveringModel(GeneralCoveringModel):
 
     INITIAL_POSITION = (0, 0)
 
-    def __init__(self, width, height, block_size):
+    def __init__(self, width, height, min_block_size, max_block_size):
         self.width = width
         self.height = height
-        super().__init__(block_size)
+        super().__init__(min_block_size, max_block_size)
 
     def _get_state_container(self):
         return TwoDCoveringState(self.width, self.height)
@@ -339,10 +388,11 @@ class TwoDCoveringModel(GeneralCoveringModel):
         """
         self.state.reset(self.width, self.height)
         self.pos = (0, 0)
-        self.step_nu = 1
 
-    def is_filled(self):
-        return (self.step_nu - 1) * self.block_size == self.width * self.height
+        super().reset()
+
+    def total_positions(self):
+        return self.width * self.height
 
     def _next_position(self, pos):
         if pos is None:
@@ -405,25 +455,23 @@ class PyramidCoveringModel(GeneralCoveringModel):
 
     INITIAL_POSITION = (0, 0, 0)
 
-    def __init__(self, pyramid_size, block_size):
+    def __init__(self, pyramid_size, min_block_size, max_block_size):
         self.size = pyramid_size
 
-        super().__init__(block_size)
+        super().__init__(min_block_size, max_block_size)
 
     def reset(self):
-        def layer_size(layer):
-            return (1 + layer) * layer // 2
-
         self.state.reset(self.size, self.size, self.size)
         self.pos = (0, 0, 0)
-        self.step_nu = 1
 
-        layers = self.size
+        super().reset()
 
-        self._total_size = sum(layer_size(x) for x in range(1, layers + 1))
+    def total_positions(self):
+        # This comes from formulas for 1 + 2 + 3 + ... + n
+        # and 1^2 + 2^2 + 3^2 + .. + n^2
+        x = self.size
 
-    def is_filled(self):
-        return (self.step_nu - 1) * self.block_size == self._total_size
+        return x * (x + 1) * (2 * x + 4) // 12
 
     def _get_state_container(self):
         return ThreeDCoveringState(self.size, self.size, self.size)
