@@ -78,7 +78,8 @@ def get_parser():
     general_subparser.add_argument(
         "--verbose",
         "-v",
-        action="store_true"
+        action="count",
+        default=0
     )
 
     two_d_parser = subparsers.add_parser("2d", parents=[general_subparser])
@@ -139,7 +140,7 @@ def do_covering(model, attempts, args):
     Tries to cover the model `attempts` times
     """
     for i in range(attempts):
-        if args.verbose:
+        if args.verbose >= 1:
             print(f"Attempting to cover ({i + 1}th attempt)... ",
                   flush=True)
 
@@ -147,10 +148,10 @@ def do_covering(model, attempts, args):
             model.reset()
             model.try_cover()
         except (ImpossibleToFinishException, CoveringTimeoutException):
-            if args.verbose:
+            if args.verbose >= 1:
                 print("\tFAILED")
         else:
-            if args.verbose:
+            if args.verbose >= 1:
                 print("\tSUCCESS")
             return  # Success
 

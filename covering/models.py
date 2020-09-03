@@ -28,13 +28,13 @@ class GeneralCoveringModel:
 
     INITIAL_POSITION = None
 
-    def __init__(self, min_block_size, max_block_size, verbose=False):
+    def __init__(self, min_block_size, max_block_size, verbosity=0):
         self.min_block_size = min_block_size
         self.max_block_size = max_block_size
 
         self.state = self._get_state_container()
 
-        self.verbose = verbose
+        self.verbosity = verbosity
 
         self.pos = None  # Implementations will change this in reset()
 
@@ -49,9 +49,9 @@ class GeneralCoveringModel:
 
     def message(self, msg):
         """
-        Print a message if the `--verbose` flag is present
+        Print a message if `-vv` is present in arguments
         """
-        if self.verbose:
+        if self.verbosity >= 2:
             print(msg)
 
     def reset(self):
