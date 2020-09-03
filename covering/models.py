@@ -227,7 +227,7 @@ class GeneralCoveringModel:
                 curr_generated.append(generated_pos)
 
                 # Check that all model constraints all fulfilled
-                if not all((cnstrt(curr_generated)
+                if not all((cnstrt(self, curr_generated)
                             for cnstrt in self.constraints)):
 
                     # At least one constraint failed
@@ -302,6 +302,12 @@ class GeneralCoveringModel:
                 return False
 
         return True
+
+    def add_constraint(self, constraint):
+        """
+        Add a new model constraint
+        """
+        self.constraints.append(constraint)
 
 
 class GeneralCoveringState:

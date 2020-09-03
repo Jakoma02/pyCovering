@@ -13,6 +13,7 @@ from covering.models import PyramidCoveringModel, \
                             CoveringTimeoutException
 
 from covering.views import TwoDPrintView, PyramidPrintView, PyramidVisualView
+from covering.constraints import string_constraint, path_constraint
 
 COVERING_ATTEMPTS = 100
 
@@ -78,6 +79,16 @@ def get_parser():
     general_subparser.add_argument(
         "--verbose",
         "-v",
+        action="store_true"
+    )
+
+    general_subparser.add_argument(
+        "--string",
+        action="store_true"
+    )
+
+    general_subparser.add_argument(
+        "--path",
         action="store_true"
     )
 
@@ -156,6 +167,17 @@ def do_covering(model, attempts, args):
     raise TooManyAttemptsException("Too many failed attempts")
 
 
+def set_constraints(model, args):
+    """
+    Set model constraints according to args values
+    """
+    if args.string:
+        model.add_constraint(string_constraint)
+
+    if args.path:
+        model.add_constraint(path_constraint)
+
+
 def main():
     """
     The program entrypoint
@@ -169,6 +191,8 @@ def main():
         print(f"Used arguments: {args}")
 
     model, view = get_model_view(args)
+
+    set_constraints(model, args)
 
     try:
         do_covering(model, COVERING_ATTEMPTS, args)
