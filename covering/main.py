@@ -120,14 +120,15 @@ def get_model_view(args):
     """
     if args.model == "pyramid":
         model = PyramidCoveringModel(args.size, args.min_block_size,
-                                     args.max_block_size)
+                                     args.max_block_size,
+                                     args.verbose)
         if args.visual:
             view = PyramidVisualView()
         else:
             view = PyramidPrintView()
     elif args.model == "2d":
         model = TwoDCoveringModel(args.width, args.height, args.min_block_size,
-                                  args.max_block_size)
+                                  args.max_block_size, args.verbose)
         view = TwoDPrintView()
 
     return (model, view)
@@ -140,17 +141,17 @@ def do_covering(model, attempts, args):
     for i in range(attempts):
         if args.verbose:
             print(f"Attempting to cover ({i + 1}th attempt)... ",
-                  end="", flush=True)
+                  flush=True)
 
         try:
             model.reset()
             model.try_cover()
         except (ImpossibleToFinishException, CoveringTimeoutException):
             if args.verbose:
-                print("FAILED")
+                print("\tFAILED")
         else:
             if args.verbose:
-                print("SUCCESS")
+                print("\tSUCCESS")
             return  # Success
 
     raise TooManyAttemptsException("Too many failed attempts")

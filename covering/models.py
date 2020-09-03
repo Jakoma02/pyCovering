@@ -28,11 +28,13 @@ class GeneralCoveringModel:
 
     INITIAL_POSITION = None
 
-    def __init__(self, min_block_size, max_block_size):
+    def __init__(self, min_block_size, max_block_size, verbose=False):
         self.min_block_size = min_block_size
         self.max_block_size = max_block_size
 
         self.state = self._get_state_container()
+
+        self.verbose = verbose
 
         self.pos = None  # Implementations will change this in reset()
 
@@ -44,6 +46,13 @@ class GeneralCoveringModel:
     @classmethod
     def _get_state_container(cls):
         raise NotImplementedError
+
+    def message(self, msg):
+        """
+        Print a message if the `--verbose` flag is present
+        """
+        if self.verbose:
+            print(msg)
 
     def reset(self):
         """
@@ -120,6 +129,8 @@ class GeneralCoveringModel:
         Adds one tile (makes one step) with size in given bounds
         """
 
+        self.message("\tAdding a new random tile...")
+
         # This may need A LOT of memory if max_block_size - min_block_size
         # is large
         all_sizes = list(range(self.min_block_size, self.max_block_size + 1))
@@ -131,9 +142,12 @@ class GeneralCoveringModel:
         step_size = 0
 
         for step_size in all_sizes:
+            self.message(f"\t\tTrying tile size {step_size}")
+
             valid = self._valid_step(pos, step_size,
                                      check_finishable=check_finishable)
             if valid is not None:
+                self.message("\t\tA valid tile found and added.\n")
                 break
         else:
             # No size led to a success
@@ -200,6 +214,8 @@ class GeneralCoveringModel:
         Returns a tuple of positions of a valid step
         starting with pos
         """
+        self.message(f"\t\t\tLooking for a valid tile/step "
+                     f"of size {step_size}...")
         iterables = []
         curr_generated = [pos]
 
@@ -227,6 +243,8 @@ class GeneralCoveringModel:
                         return tuple(curr_generated)
                     state_copy[generated_pos] = None
                     curr_generated.pop()
+                    self.message("\t\t\tThe generated position was not finishable, "
+                                 "trying another one...")
                 else:
                     new_gen = iter(self._group_neighbors(curr_generated,
                                                          state=state_copy))
@@ -365,10 +383,11 @@ class TwoDCoveringModel(GeneralCoveringModel):
 
     INITIAL_POSITION = (0, 0)
 
-    def __init__(self, width, height, min_block_size, max_block_size):
+    def __init__(self, width, height,
+                 min_block_size, max_block_size, verbose=False):
         self.width = width
         self.height = height
-        super().__init__(min_block_size, max_block_size)
+        super().__init__(min_block_size, max_block_size, verbose)
 
     def _get_state_container(self):
         return TwoDCoveringState(self.width, self.height)
@@ -455,10 +474,11 @@ class PyramidCoveringModel(GeneralCoveringModel):
 
     INITIAL_POSITION = (0, 0, 0)
 
-    def __init__(self, pyramid_size, min_block_size, max_block_size):
+    def __init__(self, pyramid_size, min_block_size, max_block_size,
+                 verbose=False):
         self.size = pyramid_size
 
-        super().__init__(min_block_size, max_block_size)
+        super().__init__(min_block_size, max_block_size, verbose)
 
     def reset(self):
         self.state.reset(self.size, self.size, self.size)
