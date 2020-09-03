@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainvSbQJV.ui'
+## Form generated from reading UI file 'mainOCGaSC.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -47,6 +47,14 @@ class Ui_MainWindow(object):
         self.actionPyramid.setCheckable(True)
         self.actionType_2 = QAction(MainWindow)
         self.actionType_2.setObjectName(u"actionType_2")
+        self.actionType = QAction(MainWindow)
+        self.actionType.setObjectName(u"actionType")
+        self.action2D_Rectangle_2 = QAction(MainWindow)
+        self.action2D_Rectangle_2.setObjectName(u"action2D_Rectangle_2")
+        self.action2D_Rectangle_2.setCheckable(True)
+        self.actionPyramid_2 = QAction(MainWindow)
+        self.actionPyramid_2.setObjectName(u"actionPyramid_2")
+        self.actionPyramid_2.setCheckable(True)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -118,9 +126,9 @@ class Ui_MainWindow(object):
         self.menuModel.addSeparator()
         self.menuModel.addAction(self.actionExit_2)
         self.menuModel_2.addAction(self.menuType.menuAction())
-        self.menuType.addAction(self.action2D_Rectangle)
-        self.menuType.addAction(self.actionPyramid)
-        self.menuView.addAction(self.actionType_2)
+        self.menuType.addAction(self.action2D_Rectangle_2)
+        self.menuType.addAction(self.actionPyramid_2)
+        self.menuView.addAction(self.actionType)
         self.menuHelp.addAction(self.actionDocumentation)
         self.menuHelp.addSeparator()
         self.menuHelp.addAction(self.actionAbout_2)
@@ -145,6 +153,9 @@ class Ui_MainWindow(object):
         self.action2D_Rectangle.setText(QCoreApplication.translate("MainWindow", u"2D Rectangle", None))
         self.actionPyramid.setText(QCoreApplication.translate("MainWindow", u"Pyramid", None))
         self.actionType_2.setText(QCoreApplication.translate("MainWindow", u"Type", None))
+        self.actionType.setText(QCoreApplication.translate("MainWindow", u"Type", None))
+        self.action2D_Rectangle_2.setText(QCoreApplication.translate("MainWindow", u"2D Rectangle", None))
+        self.actionPyramid_2.setText(QCoreApplication.translate("MainWindow", u"Pyramid", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Info", None))
         self.infoText.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
