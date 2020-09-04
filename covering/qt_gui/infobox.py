@@ -59,6 +59,19 @@ class RectangleModelFormatter(ModelFormatter):
         return super_props + new_props
 
 
+class PyramidModelFormatter(ModelFormatter):
+    MODEL_NAME = "3D Pyramid model"
+
+    @classmethod
+    def get_properties(cls, model):
+        super_props = super().get_properties(model)
+        new_props = [
+            ("Size", model.size),
+        ]
+
+        return super_props + new_props
+
+
 class NoModelFormatter(Formatter):
     @classmethod
     def get_properties(cls, model):
@@ -66,12 +79,23 @@ class NoModelFormatter(Formatter):
             ("Model name", None)
         ]
 
+class UnknownModelFormatter(Formatter):
+    @classmethod
+    def get_properties(cls, model):
+        return [
+            ("Model name", "Unknown")
+        ]
 
 def get_formatter(model):
+    if model is None:
+        return NoModelFormatter
+
     if isinstance(model, models.TwoDCoveringModel):
         return RectangleModelFormatter
-    else:
-        return NoModelFormatter
+    if isinstance(model, models.PyramidCoveringModel):
+        return PyramidModelFormatter
+
+    return UnknownModelFormatter
 
 
 class InfoBox(QTextEdit):
