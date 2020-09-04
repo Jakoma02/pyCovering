@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainOCGaSC.ui'
+## Form generated from reading UI file 'mainPxNHtu.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -14,6 +14,8 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
+
+from infobox import InfoBox
 
 
 class Ui_MainWindow(object):
@@ -55,6 +57,10 @@ class Ui_MainWindow(object):
         self.actionPyramid_2 = QAction(MainWindow)
         self.actionPyramid_2.setObjectName(u"actionPyramid_2")
         self.actionPyramid_2.setCheckable(True)
+        self.actionChange_dimensions = QAction(MainWindow)
+        self.actionChange_dimensions.setObjectName(u"actionChange_dimensions")
+        self.actionChange_tile_size = QAction(MainWindow)
+        self.actionChange_tile_size.setObjectName(u"actionChange_tile_size")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -69,8 +75,9 @@ class Ui_MainWindow(object):
         self.groupBox_3.setObjectName(u"groupBox_3")
         self.horizontalLayout_2 = QHBoxLayout(self.groupBox_3)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.infoText = QTextBrowser(self.groupBox_3)
+        self.infoText = InfoBox(self.groupBox_3)
         self.infoText.setObjectName(u"infoText")
+        self.infoText.setReadOnly(True)
 
         self.horizontalLayout_2.addWidget(self.infoText)
 
@@ -90,8 +97,9 @@ class Ui_MainWindow(object):
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.horizontalLayout = QHBoxLayout(self.groupBox_2)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.messagesText = QTextBrowser(self.groupBox_2)
+        self.messagesText = QTextEdit(self.groupBox_2)
         self.messagesText.setObjectName(u"messagesText")
+        self.messagesText.setReadOnly(True)
 
         self.horizontalLayout.addWidget(self.messagesText)
 
@@ -126,6 +134,9 @@ class Ui_MainWindow(object):
         self.menuModel.addSeparator()
         self.menuModel.addAction(self.actionExit_2)
         self.menuModel_2.addAction(self.menuType.menuAction())
+        self.menuModel_2.addSeparator()
+        self.menuModel_2.addAction(self.actionChange_dimensions)
+        self.menuModel_2.addAction(self.actionChange_tile_size)
         self.menuType.addAction(self.action2D_Rectangle_2)
         self.menuType.addAction(self.actionPyramid_2)
         self.menuView.addAction(self.actionType)
@@ -156,17 +167,17 @@ class Ui_MainWindow(object):
         self.actionType.setText(QCoreApplication.translate("MainWindow", u"Type", None))
         self.action2D_Rectangle_2.setText(QCoreApplication.translate("MainWindow", u"2D Rectangle", None))
         self.actionPyramid_2.setText(QCoreApplication.translate("MainWindow", u"Pyramid", None))
+        self.actionChange_dimensions.setText(QCoreApplication.translate("MainWindow", u"Change dimensions...", None))
+        self.actionChange_tile_size.setText(QCoreApplication.translate("MainWindow", u"Change block size...", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Info", None))
         self.infoText.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Selected model: </span><span style=\" color:#aa0000;\">none</span></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Selected view: </span><span style=\" color:#aa0000;\">none</span></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0"
-                        "px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600; color:#000000;\">Selected model:</span><span style=\" color:#000000;\"> </span><span style=\" color:#aa0000;\">none</span></p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;\"><br /></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600; color:#000000;\">Selected view:</span><span style=\" color:#000000;\"> </sp"
+                        "an><span style=\" color:#aa0000;\">none</span></p></body></html>", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Generated tiles", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Messages", None))
         self.menuModel.setTitle(QCoreApplication.translate("MainWindow", u"App", None))
