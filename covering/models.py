@@ -110,6 +110,8 @@ class GeneralCoveringModel:
         """
         Sets size of the tile groups (this resets current state)
         """
+        assert min_size <= max_size
+
         self.min_block_size = min_size
         self.max_block_size = max_size
         self.reset()
@@ -558,3 +560,7 @@ class PyramidCoveringModel(GeneralCoveringModel):
         for nbr in neighbors:
             if self._is_valid_position(nbr):
                 yield nbr
+
+    def set_size(self, size):
+        self.size = size
+        self.reset()
