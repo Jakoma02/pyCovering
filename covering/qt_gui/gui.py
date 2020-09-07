@@ -6,7 +6,7 @@ from io import StringIO
 
 from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, \
                               QActionGroup, QTextEdit, QMessageBox, \
-                              QAction
+                              QAction, QPlainTextEdit
 
 from PySide2.QtCore import Signal, QThread
 from PySide2.QtGui import QFont
@@ -36,6 +36,7 @@ def text_view_decorator(cls, parent):
 
             font = QFont("Courier")
             self.setFont(font)
+            self.outputText.setLineWrapMode(QPlainTextEdit.NoWrap)
 
             self.wrapped = cls()
             self._show = lambda: QDialog.show(self)
