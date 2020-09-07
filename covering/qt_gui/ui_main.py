@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainXaXHvV.ui'
+## Form generated from reading UI file 'maindhrWau.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -50,8 +50,6 @@ class Ui_MainWindow(object):
         self.actionPyramid.setCheckable(True)
         self.actionType_2 = QAction(MainWindow)
         self.actionType_2.setObjectName(u"actionType_2")
-        self.actionType = QAction(MainWindow)
-        self.actionType.setObjectName(u"actionType")
         self.action2D_Rectangle_2 = QAction(MainWindow)
         self.action2D_Rectangle_2.setObjectName(u"action2D_Rectangle_2")
         self.action2D_Rectangle_2.setCheckable(True)
@@ -62,6 +60,8 @@ class Ui_MainWindow(object):
         self.actionChange_dimensions.setObjectName(u"actionChange_dimensions")
         self.actionChange_tile_size = QAction(MainWindow)
         self.actionChange_tile_size.setObjectName(u"actionChange_tile_size")
+        self.actionExample_type = QAction(MainWindow)
+        self.actionExample_type.setObjectName(u"actionExample_type")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -120,6 +120,8 @@ class Ui_MainWindow(object):
         self.menuType.setObjectName(u"menuType")
         self.menuView = QMenu(self.menubar)
         self.menuView.setObjectName(u"menuView")
+        self.menuType_2 = QMenu(self.menuView)
+        self.menuType_2.setObjectName(u"menuType_2")
         self.menuHelp = QMenu(self.menubar)
         self.menuHelp.setObjectName(u"menuHelp")
         MainWindow.setMenuBar(self.menubar)
@@ -140,7 +142,8 @@ class Ui_MainWindow(object):
         self.menuModel_2.addAction(self.actionChange_tile_size)
         self.menuType.addAction(self.action2D_Rectangle_2)
         self.menuType.addAction(self.actionPyramid_2)
-        self.menuView.addAction(self.actionType)
+        self.menuView.addAction(self.menuType_2.menuAction())
+        self.menuType_2.addAction(self.actionExample_type)
         self.menuHelp.addAction(self.actionDocumentation)
         self.menuHelp.addSeparator()
         self.menuHelp.addAction(self.actionAbout_2)
@@ -165,11 +168,11 @@ class Ui_MainWindow(object):
         self.action2D_Rectangle.setText(QCoreApplication.translate("MainWindow", u"2D Rectangle", None))
         self.actionPyramid.setText(QCoreApplication.translate("MainWindow", u"Pyramid", None))
         self.actionType_2.setText(QCoreApplication.translate("MainWindow", u"Type", None))
-        self.actionType.setText(QCoreApplication.translate("MainWindow", u"Type", None))
         self.action2D_Rectangle_2.setText(QCoreApplication.translate("MainWindow", u"2D Rectangle", None))
         self.actionPyramid_2.setText(QCoreApplication.translate("MainWindow", u"Pyramid", None))
         self.actionChange_dimensions.setText(QCoreApplication.translate("MainWindow", u"Change dimensions...", None))
         self.actionChange_tile_size.setText(QCoreApplication.translate("MainWindow", u"Change block size...", None))
+        self.actionExample_type.setText(QCoreApplication.translate("MainWindow", u"Example type", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Info", None))
         self.infoText.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -185,6 +188,7 @@ class Ui_MainWindow(object):
         self.menuModel_2.setTitle(QCoreApplication.translate("MainWindow", u"Model", None))
         self.menuType.setTitle(QCoreApplication.translate("MainWindow", u"Type", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
+        self.menuType_2.setTitle(QCoreApplication.translate("MainWindow", u"Type", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
     # retranslateUi
 

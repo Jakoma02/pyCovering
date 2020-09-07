@@ -2,7 +2,9 @@ import sys
 import webbrowser
 
 from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, \
-                              QActionGroup, QTextEdit, QMessageBox
+                              QActionGroup, QTextEdit, QMessageBox, \
+                              QAction
+
 from PySide2.QtCore import Signal, QThread
 
 from ui_main import Ui_MainWindow
@@ -16,6 +18,8 @@ from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
                             PyramidCoveringModel, CoveringTimeoutException, \
                             ImpossibleToFinishException, \
                             CoveringStoppedException
+
+from covering.views import TwoDPrintView, PyramidPrintView, PyramidVisualView
 
 
 class GenerateModelThread(QThread):
@@ -153,12 +157,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.show_covering_dialog)
 
         self.model_type_changed.connect(self.update_model_type)
+        self.model_type_changed.connect(self.update_view_types)
         self.model_changed.connect(self.infoText.update)
 
         self.model_changed.emit(self.model)
+        self.update_view_types()
 
-        for i in range(50):
-            self.message(i)
 
     def show_about_dialog(self):
         dialog = AboutDialog(self)
@@ -257,6 +261,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.model_type_group.addAction(self.action2D_Rectangle_2)
         self.model_type_group.addAction(self.actionPyramid_2)
 
+        self.view_type_group = QActionGroup(self)
+
         self.model_type_group.triggered.connect(self.model_type_changed)
 
     def update_model_type(self):
@@ -286,6 +292,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def covering_failed(self):
         self.message("Covering failed")
         QMessageBox.critical(self, "Failed", "Covering failed")
+
+    @staticmethod
+    def model_views(model):
+        """
+        Returns a list of tuples for all views
+        for given mode as  (name, class)
+        """
+
+        if isinstance(model, TwoDCoveringModel):
+            return [
+                ("Print view", TwoDPrintView),
+            ]
+
+        if isinstance(model, PyramidCoveringModel):
+            return [
+                    ("Print view", PyramidPrintView),
+                    ("Visual view", PyramidVisualView)
+            ]
+
+        return []
+
+
+    def update_view_types(self):
+        view_type_menu = self.menuType_2
+        view_type_menu.clear()
+
+        for action in self.view_type_group.actions():
+            self.view_type_group.removeAction(action)
+
+        all_views = self.model_views(self.model)
+
+        if not all_views:
+            # Likely no model selected
+            view_type_menu.setEnabled(False)
+            return
+
+        view_type_menu.setEnabled(True)
+
+        for name, view in all_views:
+            action = QAction(self)
+            action.setText(name)
+            action.setCheckable(True)
+            view_type_menu.addAction(action)
+            self.view_type_group.addAction(action)
 
 
 if __name__ == "__main__":
