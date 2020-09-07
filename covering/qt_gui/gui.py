@@ -1,11 +1,15 @@
 import sys
 import webbrowser
 
+from contextlib import redirect_stdout
+from io import StringIO
+
 from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, \
                               QActionGroup, QTextEdit, QMessageBox, \
                               QAction
 
 from PySide2.QtCore import Signal, QThread
+from PySide2.QtGui import QFont
 
 from ui_main import Ui_MainWindow
 from ui_about import Ui_Dialog
@@ -13,6 +17,7 @@ from ui_2d_dimensions import Ui_TwoDDimensionsDialog
 from ui_pyramid_dimensions import Ui_PyramidDimensionsDialog
 from ui_block_size_dialog import Ui_BlockSizeDialog
 from ui_covering_dialog import Ui_CoveringDialog
+from ui_text_view import Ui_TextViewDialog
 
 from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
                             PyramidCoveringModel, CoveringTimeoutException, \
@@ -21,6 +26,34 @@ from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
 
 from covering.views import GeneralView, TwoDPrintView, PyramidPrintView, \
                            PyramidVisualView
+
+def text_view_decorator(cls, parent):
+    class Wrapper(QDialog, Ui_TextViewDialog, cls):
+        # We're subclassing `cls` so that isinstance(view, cls) is True
+        def __init__(self):
+            QDialog.__init__(self, parent)
+            self.setupUi(self)
+
+            font = QFont("Courier")
+            self.setFont(font)
+
+            self.wrapped = cls()
+            self._show = lambda: QDialog.show(self)
+            self._show()
+
+        def show(self, model):
+            output_io = StringIO()
+
+            with redirect_stdout(output_io):
+                self.wrapped.show(model)
+
+            out_str = output_io.getvalue()
+            self.outputText.setPlainText(out_str)
+            output_io.close()
+
+    return Wrapper
+
+
 
 
 class GenerateModelThread(QThread):
@@ -174,6 +207,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.view_changed.connect(
                 lambda _: self.info_updated.emit(self.model, self.view))
         self.info_updated.connect(self.infoText.update)
+        self.info_updated.connect(self.update_view)
 
         self.model_changed.emit(self.model)
         self.update_view_type_menu()
@@ -232,6 +266,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.model_changed.emit(self.model)
 
         self.message("Size updated")
+
+    def update_view(self, model, view):
+        if view is not None and model is not None and model.is_filled():
+            view.show(model)
 
     def block_sizes_accepted(self, min_val, max_val):
         assert self.model is not None
@@ -327,8 +365,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.message("Covering failed")
         QMessageBox.critical(self, "Failed", "Covering failed")
 
-    @staticmethod
-    def model_views(model):
+    def model_views(self, model):
         """
         Returns a list of tuples for all views
         for given mode as  (name, class)
@@ -336,12 +373,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if isinstance(model, TwoDCoveringModel):
             return [
-                ("Print view", TwoDPrintView),
+                ("Print view", text_view_decorator(TwoDPrintView, self)),
             ]
 
         if isinstance(model, PyramidCoveringModel):
             return [
-                    ("Print view", PyramidPrintView),
+                    ("Print view",
+                        text_view_decorator(PyramidPrintView, self)),
                     ("Visual view", PyramidVisualView)
             ]
 
