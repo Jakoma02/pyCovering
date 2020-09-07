@@ -38,10 +38,14 @@ class ModelFormatter(Formatter):
 
     @classmethod
     def get_properties(cls, model):
+        covered = model.is_filled()
+        state = "Covered" if covered else "Not covered"
+
         return [
             ("Model name", cls.MODEL_NAME),
             ("Min block size", model.min_block_size),
             ("Max block size", model.max_block_size),
+            ("State", state)
         ]
 
 
