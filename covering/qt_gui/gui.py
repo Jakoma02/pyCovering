@@ -32,6 +32,7 @@ class GenerateModelThread(QThread):
         try:
             self.model.try_cover()
             self.success.emit()
+            print("Success")
         except (CoveringTimeoutException, ImpossibleToFinishException,
                 CoveringStoppedException):
             self.failed.emit()
@@ -170,6 +171,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dialog.finished.connect(self.cancel_covering)
 
         self.thread.success.connect(dialog.close)
+        self.thread.success.connect(
+                lambda: self.model_changed.emit(self.model))
         self.thread.failed.connect(dialog.close)
 
         self.thread.start()
