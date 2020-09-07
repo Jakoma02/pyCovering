@@ -3,18 +3,48 @@ import webbrowser
 
 from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, \
                               QActionGroup, QTextEdit, QMessageBox
-from PySide2.QtCore import Signal
+from PySide2.QtCore import Signal, QThread
+
 from ui_main import Ui_MainWindow
 from ui_about import Ui_Dialog
 from ui_2d_dimensions import Ui_TwoDDimensionsDialog
 from ui_pyramid_dimensions import Ui_PyramidDimensionsDialog
 from ui_block_size_dialog import Ui_BlockSizeDialog
+from ui_covering_dialog import Ui_CoveringDialog
 
 from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
-                            PyramidCoveringModel
+                            PyramidCoveringModel, CoveringTimeoutException, \
+                            ImpossibleToFinishException, \
+                            CoveringStoppedException
+
+
+class GenerateModelThread(QThread):
+    success = Signal()
+    failed = Signal()
+
+    def __init__(self, model):
+        self.model = model
+
+        super().__init__()
+
+    def run(self):
+        self.model.reset()
+        try:
+            self.model.try_cover()
+            self.success.emit()
+        except (CoveringTimeoutException, ImpossibleToFinishException,
+                CoveringStoppedException):
+            self.failed.emit()
 
 
 class AboutDialog(QDialog, Ui_Dialog):
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+
+        self.setupUi(self)
+
+
+class CoveringDialog(QDialog, Ui_CoveringDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
 
@@ -117,6 +147,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionChange_tile_size.triggered.connect(
                 self.show_block_size_dialog)
 
+        self.actionGenerate.triggered.connect(
+                self.show_covering_dialog)
+
         self.model_type_changed.connect(self.update_model_type)
         self.model_changed.connect(self.infoText.update)
 
@@ -125,6 +158,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def show_about_dialog(self):
         dialog = AboutDialog(self)
         dialog.open()
+
+    def show_covering_dialog(self):
+        if self.model is None:
+            QMessageBox.warning(self, "No model", "No model selected!")
+            return
+
+        self.thread = GenerateModelThread(self.model)
+        dialog = CoveringDialog(self)
+
+        dialog.finished.connect(self.cancel_covering)
+
+        self.thread.success.connect(dialog.close)
+        self.thread.failed.connect(dialog.close)
+
+        self.thread.start()
+        dialog.open()
+
 
     def show_block_size_dialog(self):
         if self.model is None:
@@ -204,6 +254,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.model = model
         self.model_changed.emit(model)
+
+    def cancel_covering(self):
+        self.model.stop_covering()
 
 
 if __name__ == "__main__":
