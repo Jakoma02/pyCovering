@@ -21,6 +21,7 @@ from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
 class GenerateModelThread(QThread):
     success = Signal()
     failed = Signal()
+    stopped = Signal()
 
     def __init__(self, model):
         self.model = model
@@ -32,9 +33,9 @@ class GenerateModelThread(QThread):
         try:
             self.model.try_cover()
             self.success.emit()
-            print("Success")
-        except (CoveringTimeoutException, ImpossibleToFinishException,
-                CoveringStoppedException):
+        except CoveringStoppedException:
+            self.stopped.emit()
+        except (CoveringTimeoutException, ImpossibleToFinishException):
             self.failed.emit()
 
 
@@ -156,6 +157,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.model_changed.emit(self.model)
 
+        for i in range(50):
+            self.message(i)
+
     def show_about_dialog(self):
         dialog = AboutDialog(self)
         dialog.open()
@@ -168,12 +172,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.thread = GenerateModelThread(self.model)
         dialog = CoveringDialog(self)
 
-        dialog.finished.connect(self.cancel_covering)
+        dialog.rejected.connect(self.cancel_covering)
 
-        self.thread.success.connect(dialog.close)
+        self.thread.success.connect(dialog.accept)
         self.thread.success.connect(
                 lambda: self.model_changed.emit(self.model))
-        self.thread.failed.connect(dialog.close)
+        self.thread.success.connect(self.covering_success)
+        self.thread.failed.connect(dialog.reject)
+        self.thread.failed.connect(self.covering_failed)
 
         self.thread.start()
         dialog.open()
@@ -198,17 +204,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.model.set_size(width, height)
         self.model_changed.emit(self.model)
 
+        self.message("Size updated")
+
     def pyramid_dimensions_accepted(self, size):
         assert isinstance(self.model, PyramidCoveringModel)
 
         self.model.set_size(size)
         self.model_changed.emit(self.model)
 
+        self.message("Size updated")
+
     def block_sizes_accepted(self, min_val, max_val):
         assert self.model is not None
 
         self.model.set_block_size(min_val, max_val)
         self.model_changed.emit(self.model)
+
+        self.message("Block size updated")
 
     def show_dimensions_dialog(self):
         if self.model is None:
@@ -234,6 +246,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             dialog.dimensionsAccepted.connect(self.pyramid_dimensions_accepted)
             dialog.show()
 
+    def message(self, msg):
+        self.messagesText.add_message(msg)
 
     def show_help(self):
         webbrowser.open(self.HELP_URL)
@@ -258,8 +272,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.model = model
         self.model_changed.emit(model)
 
+        self.message("Model type updated")
+
     def cancel_covering(self):
-        self.model.stop_covering()
+        if self.thread.isRunning():
+            # The thread is being terminated
+            self.model.stop_covering()
+            self.message("Covering terminated")
+
+    def covering_success(self):
+        self.message("Covering successful")
+
+    def covering_failed(self):
+        self.message("Covering failed")
+        QMessageBox.critical(self, "Failed", "Covering failed")
 
 
 if __name__ == "__main__":

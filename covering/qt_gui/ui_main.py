@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainPxNHtu.ui'
+## Form generated from reading UI file 'mainXaXHvV.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -16,6 +16,7 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
 from PySide2.QtWidgets import *
 
 from infobox import InfoBox
+from messagebox import MessageBox
 
 
 class Ui_MainWindow(object):
@@ -97,7 +98,7 @@ class Ui_MainWindow(object):
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.horizontalLayout = QHBoxLayout(self.groupBox_2)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.messagesText = QTextEdit(self.groupBox_2)
+        self.messagesText = MessageBox(self.groupBox_2)
         self.messagesText.setObjectName(u"messagesText")
         self.messagesText.setReadOnly(True)
 

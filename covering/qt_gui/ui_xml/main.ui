@@ -64,7 +64,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QTextEdit" name="messagesText">
+         <widget class="MessageBox" name="messagesText">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -232,6 +232,11 @@ p, li { white-space: pre-wrap; }
    <class>InfoBox</class>
    <extends>QTextEdit</extends>
    <header location="global">infobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MessageBox</class>
+   <extends>QTextEdit</extends>
+   <header location="global">messagebox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
