@@ -17,6 +17,13 @@ class GeneralView:
         """
         raise NotImplementedError
 
+    def close(self):
+        """
+        Closes the view window, if any
+
+        Doesn't do anything by default
+        """
+
 
 class TwoDPrintView(GeneralView):
     """
