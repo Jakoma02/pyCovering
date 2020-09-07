@@ -19,7 +19,8 @@ from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
                             ImpossibleToFinishException, \
                             CoveringStoppedException
 
-from covering.views import TwoDPrintView, PyramidPrintView, PyramidVisualView
+from covering.views import GeneralView, TwoDPrintView, PyramidPrintView, \
+                           PyramidVisualView
 
 
 class GenerateModelThread(QThread):
@@ -134,7 +135,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     HELP_URL = "https://www.github.com/jakoma02/covering"
 
     model_type_changed = Signal()
+    view_type_changed = Signal()
     model_changed = Signal(GeneralCoveringModel)
+    view_changed = Signal(GeneralView)
+    info_updated = Signal(GeneralCoveringModel, GeneralView)
     settings_changed = Signal()
 
     def __init__(self):
@@ -145,6 +149,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
         self.create_action_groups()
+
+        # A dict Action name -> GeneralView, so that we can set the
+        # correct view upon view type action trigger
+        self.action_views = dict()
 
         self.actionAbout_2.triggered.connect(self.show_about_dialog)
         self.actionDocumentation.triggered.connect(self.show_help)
@@ -157,11 +165,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.show_covering_dialog)
 
         self.model_type_changed.connect(self.update_model_type)
-        self.model_type_changed.connect(self.update_view_types)
-        self.model_changed.connect(self.infoText.update)
+        self.model_type_changed.connect(self.update_view_type_menu)
+        self.model_changed.connect(
+                lambda _: self.info_updated.emit(self.model, self.view))
+
+        self.view_type_changed.connect(self.update_view_type)
+
+        self.view_changed.connect(
+                lambda _: self.info_updated.emit(self.model, self.view))
+        self.info_updated.connect(self.infoText.update)
 
         self.model_changed.emit(self.model)
-        self.update_view_types()
+        self.update_view_type_menu()
 
 
     def show_about_dialog(self):
@@ -264,6 +279,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.view_type_group = QActionGroup(self)
 
         self.model_type_group.triggered.connect(self.model_type_changed)
+        self.view_type_group.triggered.connect(self.view_type_changed)
 
     def update_model_type(self):
         selected_model = self.model_type_group.checkedAction()
@@ -275,10 +291,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             model = None
 
+        # TODO: Fix that GUI doesn't show view is none immediately
         self.model = model
+
         self.model_changed.emit(model)
 
         self.message("Model type updated")
+
+    def update_view_type(self):
+        selected_action = self.view_type_group.checkedAction()
+        
+        if selected_action is None:
+            # Model was probably changed
+            self.view = None
+        else:
+            action_name = selected_action.objectName()
+            selected_view = self.action_views[action_name]
+
+            self.view = selected_view()  # New instance of that view
+
+            self.message("View type updated")
+
+        self.view_changed.emit(self.view)
 
     def cancel_covering(self):
         if self.thread.isRunning():
@@ -314,7 +348,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return []
 
 
-    def update_view_types(self):
+    def update_view_type_menu(self):
         view_type_menu = self.menuType_2
         view_type_menu.clear()
 
@@ -330,12 +364,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         view_type_menu.setEnabled(True)
 
-        for name, view in all_views:
+        self.action_views.clear()
+
+        for i, view_tuple in enumerate(all_views):
+            name, view = view_tuple
+
+            # As good as any, we just need to distinguish the actions
+            action_name = f"Action{i}"
+
             action = QAction(self)
             action.setText(name)
             action.setCheckable(True)
+            action.setObjectName(action_name)
+
+            # So that we can later see which view should be activated
+            self.action_views[action_name] = view
             view_type_menu.addAction(action)
             self.view_type_group.addAction(action)
+
+        self.update_view_type()
 
 
 if __name__ == "__main__":

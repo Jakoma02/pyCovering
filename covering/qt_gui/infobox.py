@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import QTextEdit
-from covering import models
+from covering import models, views
 
 
 class Formatter:
@@ -9,14 +9,14 @@ class Formatter:
     """
 
     @classmethod
-    def get_properties(cls, model):
+    def get_properties(cls, obj):
         raise NotImplementedError
 
     @classmethod
-    def format(cls, model):
+    def format(cls, obj):
         result_list = []
 
-        properties = cls.get_properties(model)
+        properties = cls.get_properties(obj)
 
         first = True
         for name, val in properties:
@@ -90,6 +90,28 @@ class UnknownModelFormatter(Formatter):
             ("Model name", "Unknown")
         ]
 
+class ViewFormatter(Formatter):
+    @staticmethod
+    def view_name(view):
+        if view is None:
+            return None
+
+        if isinstance(view, views.TwoDPrintView):
+            return "2D Print view"
+        if isinstance(view, views.PyramidPrintView):
+            return "Pyramid Print view"
+        if isinstance(view, views.PyramidVisualView):
+            return "Pyramid Visual view"
+
+        return "Unknown"
+
+    @classmethod
+    def get_properties(cls, view):
+        v_name = ViewFormatter.view_name(view)
+        return [
+            ("View name", v_name)
+        ]
+
 def get_formatter(model):
     if model is None:
         return NoModelFormatter
@@ -106,11 +128,12 @@ class InfoBox(QTextEdit):
     def __init__(self, parent):
         super().__init__(parent)
 
-    def update(self, model):
-        formatter = get_formatter(model)
-        model_info = formatter.format(model)
+    def update(self, model, view):
+        model_formatter = get_formatter(model)
+        model_info = model_formatter.format(model)
+        view_info = ViewFormatter.format(view)
 
         html = f"<html><head><meta name='qrichtext' content='1' /></head>" \
-               f"<body>{model_info}</body></html>"
+               f"<body><p>{model_info}</p><p>{view_info}</p></body></html>"
 
         self.setHtml(html)
