@@ -21,6 +21,13 @@ class CoveringTimeoutException(Exception):
     """
 
 
+class CoveringStoppedException(Exception):
+    """
+    This exceptions is raised if the covering
+    was stopped by `model.stop_covering()`
+    """
+
+
 class GeneralCoveringModel:
     """
     Model encapsulating all bussiness logic
@@ -37,6 +44,8 @@ class GeneralCoveringModel:
         self.verbosity = verbosity
 
         self.pos = None  # Implementations will change this in reset()
+
+        self.stopped = False  # Was covering interrupted by another thread
 
         # Set timeout handler
         signal.signal(signal.SIGALRM, GeneralCoveringModel._timeout_handler)
@@ -63,6 +72,12 @@ class GeneralCoveringModel:
         """
         self._empty_positions = self.total_positions()
         self.step_nu = 1
+
+    def stop_covering(self):
+        """
+        Stop covering the model (if covering is in progress)
+        """
+        self.stopped = True
 
     def is_filled(self):
         """
@@ -171,6 +186,8 @@ class GeneralCoveringModel:
         """
         signal.alarm(timeout)  # In seconds
 
+        self.stopped = False
+
         while not self.is_filled():
             self.add_random_tile(check_finishable=check_finishable)
 
@@ -232,6 +249,10 @@ class GeneralCoveringModel:
         iterables.append(new_gen)
 
         while iterables:
+            # Another thread interrupted the covering
+            if self.stopped:
+                raise CoveringStoppedException
+
             last_gen = iterables[-1]
             try:
                 generated_pos = next(last_gen)
@@ -245,8 +266,8 @@ class GeneralCoveringModel:
                         return tuple(curr_generated)
                     state_copy[generated_pos] = None
                     curr_generated.pop()
-                    self.message("\t\t\tThe generated position was not finishable, "
-                                 "trying another one...")
+                    self.message("\t\t\tThe generated position was not "
+                                 "finishable, trying another one...")
                 else:
                     new_gen = iter(self._group_neighbors(curr_generated,
                                                          state=state_copy))
