@@ -30,19 +30,27 @@ from covering.views import GeneralView, TwoDPrintView, PyramidPrintView, \
 def text_view_decorator(cls, parent):
     class Wrapper(QDialog, Ui_TextViewDialog, cls):
         # We're subclassing `cls` so that isinstance(view, cls) is True
+        _show = QDialog.show
+        _close = QDialog.close
+
         def __init__(self):
             QDialog.__init__(self, parent)
             self.setupUi(self)
+
+            self.showing = False
 
             font = QFont("Courier")
             self.setFont(font)
             self.outputText.setLineWrapMode(QPlainTextEdit.NoWrap)
 
             self.wrapped = cls()
-            self._show = lambda: QDialog.show(self)
-            self._show()
+            self.accepted.connect(self.close)
 
         def show(self, model):
+            if not self.showing:
+                self._show()
+                self.showing = True
+
             output_io = StringIO()
 
             with redirect_stdout(output_io):
@@ -52,15 +60,19 @@ def text_view_decorator(cls, parent):
             self.outputText.setPlainText(out_str)
             output_io.close()
 
+        def close(self):
+            self.wrapped.close()
+            self._close()
+            self.showing = False
+
     return Wrapper
-
-
 
 
 class GenerateModelThread(QThread):
     success = Signal()
     failed = Signal()
     stopped = Signal()
+    done = Signal()
 
     def __init__(self, model):
         self.model = model
@@ -68,14 +80,16 @@ class GenerateModelThread(QThread):
         super().__init__()
 
     def run(self):
-        self.model.reset()
         try:
             self.model.try_cover()
             self.success.emit()
+            self.done.emit()
         except CoveringStoppedException:
             self.stopped.emit()
+            self.done.emit()
         except (CoveringTimeoutException, ImpossibleToFinishException):
             self.failed.emit()
+            self.done.emit()
 
 
 class AboutDialog(QDialog, Ui_Dialog):
@@ -223,17 +237,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMessageBox.warning(self, "No model", "No model selected!")
             return
 
+        self.model.reset()
+
         self.thread = GenerateModelThread(self.model)
         dialog = CoveringDialog(self)
 
         dialog.rejected.connect(self.cancel_covering)
 
         self.thread.success.connect(dialog.accept)
-        self.thread.success.connect(
-                lambda: self.model_changed.emit(self.model))
         self.thread.success.connect(self.covering_success)
         self.thread.failed.connect(dialog.reject)
         self.thread.failed.connect(self.covering_failed)
+
+        self.thread.done.connect(
+                lambda: self.model_changed.emit(self.model))
 
         self.thread.start()
         dialog.open()
@@ -269,8 +286,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.message("Size updated")
 
     def update_view(self, model, view):
-        if view is not None and model is not None and model.is_filled():
+        if view is None:
+            return
+        if model is not None and model.is_filled():
             view.show(model)
+        else:
+            view.close()
 
     def block_sizes_accepted(self, min_val, max_val):
         assert self.model is not None
@@ -338,6 +359,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.message("Model type updated")
 
     def update_view_type(self):
+        if self.view is not None:
+            self.view.close()
+
         selected_action = self.view_type_group.checkedAction()
         
         if selected_action is None:

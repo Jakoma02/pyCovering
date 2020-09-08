@@ -4,6 +4,8 @@ This module contains various views for all covering models
 
 from random import random
 from math import sqrt
+from multiprocessing import Process, Queue
+
 import vpython as vp
 
 
@@ -90,6 +92,9 @@ class PyramidVisualView(GeneralView):
         self.colors = dict()
         self.spheres = []
 
+        self.process = None
+        self.queue = Queue()
+
     @staticmethod
     def _random_color():
         return vp.vec(random(), random(), random())
@@ -110,6 +115,26 @@ class PyramidVisualView(GeneralView):
         return vp.vec(real_x, real_y, real_z)
 
     def show(self, model):
+        if self.process is None:
+            self.process = Process(
+                target=self._show_process,
+                daemon=True,
+                args=(model, self.queue))
+            self.process.start()
+
+        self.queue.put(model)
+
+    def _show_process(self, model, queue):
+        try:
+            while True:
+                if not queue.empty():
+                    last = queue.get()
+                    self._update(last)
+        except BrokenPipeError:
+            # Vpython raises this, can be ignored
+            pass
+
+    def _update(self, model):
         for pos in model.all_positions():
             val = model.state[pos]
 
@@ -126,3 +151,9 @@ class PyramidVisualView(GeneralView):
                 radius=PyramidVisualView.RADIUS,
                 color=color,
                 opacity=0.8))
+
+    def close(self):
+        if self.process is not None:
+            self.process.terminate()
+
+        self.process = None
