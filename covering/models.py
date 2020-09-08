@@ -27,6 +27,32 @@ class CoveringStoppedException(Exception):
     was stopped by `model.stop_covering()`
     """
 
+class Block:
+    # TODO: Docstring
+    def __init__(self, number):
+        self.number = number
+        self.positions = []
+        self.color = self.random_color()
+        self.visible = True
+
+    @staticmethod
+    def random_color():
+        return tuple((random.randint(0, 255) for _ in range(3)))
+
+    def add_position(self, pos):
+        self.positions.append(pos)
+
+    def size(self):
+        return len(self.positions)
+
+    @classmethod
+    def setup_static_instances(cls):
+        cls.EMPTY = Block(-1)
+        cls.PLACEHOLDER = Block(-2)
+
+    def __deepcopy__(self, memo):
+        return self  # HACK, in this case we don't need to go THIS deep
+
 
 class GeneralCoveringModel:
     """
@@ -36,6 +62,8 @@ class GeneralCoveringModel:
     INITIAL_POSITION = None
 
     def __init__(self, min_block_size, max_block_size, verbosity=0):
+        Block.setup_static_instances()
+
         self.min_block_size = min_block_size
         self.max_block_size = max_block_size
 
@@ -71,7 +99,14 @@ class GeneralCoveringModel:
         a common part meant to be called as `super().reset()`
         """
         self._empty_positions = self.total_positions()
-        self.step_nu = 1
+        self.blocks = []
+        self.block_nu = 1
+
+    def next_block(self):
+        block = Block(self.block_nu)
+        self.block_nu += 1
+
+        return block
 
     def stop_covering(self):
         """
@@ -116,7 +151,7 @@ class GeneralCoveringModel:
             if pos is None:
                 return None
 
-            if self.state[pos] is None:
+            if self.state[pos] is Block.EMPTY:
                 return pos
 
             pos = self._next_position(pos)
@@ -135,10 +170,12 @@ class GeneralCoveringModel:
         """
         Add a new tile on positions from tile=[pos1, pos2, pos3, ...]
         """
-        for pos in tile:
-            self.state[pos] = self.step_nu
+        block = self.next_block()
+        self.blocks.append(block)
 
-        self.step_nu += 1
+        for pos in tile:
+            self.state[pos] = block
+
         self._empty_positions -= len(tile)
 
     def add_random_tile(self, check_finishable=True):
@@ -204,7 +241,7 @@ class GeneralCoveringModel:
         result = set()
 
         for nbr in self._neighbors(pos):
-            if state[nbr] is not None:
+            if state[nbr] is not Block.EMPTY:
                 continue
             result.add(nbr)
 
@@ -258,13 +295,13 @@ class GeneralCoveringModel:
                 generated_pos = next(last_gen)
                 curr_generated.append(generated_pos)
 
-                state_copy[generated_pos] = -1  # Placeholder
+                state_copy[generated_pos] = Block.PLACEHOLDER  # Placeholder
 
                 if len(curr_generated) == step_size:
                     if not check_finishable or \
                            self._is_finishable(state=state_copy):
                         return tuple(curr_generated)
-                    state_copy[generated_pos] = None
+                    state_copy[generated_pos] = Block.EMPTY
                     curr_generated.pop()
                     self.message("\t\t\tThe generated position was not "
                                  "finishable, trying another one...")
@@ -276,7 +313,7 @@ class GeneralCoveringModel:
             except StopIteration:
                 iterables.pop()
                 last_pos = curr_generated.pop()
-                state_copy[last_pos] = None
+                state_copy[last_pos] = Block.EMPTY
 
         return None
 
@@ -295,12 +332,14 @@ class GeneralCoveringModel:
             while stack:
                 pos = stack.pop()
 
-                if state[pos] is not None:
-                    continue
-                if visited[pos]:
+                if state[pos] is not Block.EMPTY:
                     continue
 
-                visited[pos] = True
+                # HACK (EMPTY == False, PLACEHOLDER == TRUE)
+                if visited[pos] is not Block.EMPTY:
+                    continue
+
+                visited[pos] = Block.PLACEHOLDER
                 component_size += 1  # Me
 
                 for nei_pos in self._neighbors(pos):
@@ -315,7 +354,8 @@ class GeneralCoveringModel:
         visited = self._get_state_container()
 
         for pos in self.all_positions():
-            if visited[pos] or state[pos] is not None:
+            if visited[pos] is not Block.EMPTY or \
+                    state[pos] is not Block.EMPTY:
                 continue
             component_size = dfs(pos)
 
@@ -387,7 +427,7 @@ class TwoDCoveringState(GeneralCoveringState):
 
     # pylint: disable=arguments-differ
     def reset(self, width, height):
-        self._state = [[None for _ in range(width)]
+        self._state = [[Block.EMPTY for _ in range(width)]
                        for _ in range(height)]
 
     def __getitem__(self, pos):
@@ -475,7 +515,7 @@ class ThreeDCoveringState(GeneralCoveringState):
 
     # pylint: disable=arguments-differ
     def reset(self, xs, ys, zs):
-        self._state = [[[None for _ in range(zs)]
+        self._state = [[[Block.EMPTY for _ in range(zs)]
                         for _ in range(ys)]
                        for _ in range(xs)]
 

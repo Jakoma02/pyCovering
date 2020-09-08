@@ -6,6 +6,8 @@ from random import random
 from math import sqrt
 from multiprocessing import Process, Queue
 
+from covering.models import Block
+
 import vpython as vp
 
 
@@ -35,13 +37,13 @@ class TwoDPrintView(GeneralView):
     def show(self, model):
         data = model.state.raw_data()
 
-        vals = [x for row in data for x in row]
+        vals = [x.number for row in data for x in row]
         longest = max(vals)
         max_len = len(str(longest))
         width = max_len + 1
 
         for row in data:
-            p_row = "".join([str(x).center(width) for x in row])
+            p_row = "".join([str(x.number).center(width) for x in row])
             print(p_row)
 
 
@@ -52,8 +54,8 @@ class PyramidPrintView(GeneralView):
     """
     @staticmethod
     def _max_len(data):
-        vals = [x for layer in data for row in layer for x in row
-                if x is not None]
+        vals = [x.number for layer in data for row in layer for x in row
+                if x is not Block.EMPTY]
         longest = max(vals)
         max_len = len(str(longest))
         return max_len
@@ -65,7 +67,7 @@ class PyramidPrintView(GeneralView):
             for i, row in enumerate(layer_data):
                 row_data = row[:layer_size-i]
                 print(i * offset * " ", end="")
-                row = "".join([str(x).ljust(width) for x in row_data])
+                row = "".join([str(x.number).ljust(width) for x in row_data])
                 print(row)
 
         data = model.state.raw_data()
@@ -135,10 +137,12 @@ class PyramidVisualView(GeneralView):
 
     def _update(self, model):
         for pos in model.all_positions():
-            val = model.state[pos]
+            block = model.state[pos]
 
-            if val is None:
+            if block is None:
                 continue
+
+            val = block.number
 
             if val not in self.colors:
                 self.colors[val] = PyramidVisualView._random_color()
