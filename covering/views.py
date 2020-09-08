@@ -43,7 +43,8 @@ class TwoDPrintView(GeneralView):
         width = max_len + 1
 
         for row in data:
-            p_row = "".join([str(x.number).center(width) for x in row])
+            p_row = "".join([(str(x.number) if x.visible else "")
+                             .center(width) for x in row])
             print(p_row)
 
 
@@ -67,7 +68,8 @@ class PyramidPrintView(GeneralView):
             for i, row in enumerate(layer_data):
                 row_data = row[:layer_size-i]
                 print(i * offset * " ", end="")
-                row = "".join([str(x.number).ljust(width) for x in row_data])
+                row = "".join([(str(x.number) if x.visible else "")
+                              .center(width) for x in row_data])
                 print(row)
 
         data = model.state.raw_data()
@@ -139,7 +141,7 @@ class PyramidVisualView(GeneralView):
         for pos in model.all_positions():
             block = model.state[pos]
 
-            if block is None:
+            if block is None or not block.visible:
                 continue
 
             val = block.number
