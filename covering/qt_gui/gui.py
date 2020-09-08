@@ -447,9 +447,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.update_view_type()
 
+    def close(self):
+        if self.view is not None:
+            self.view.close()
+
 
 if __name__ == "__main__":
     app = QApplication()
     mainWindow = MainWindow()
+    app.lastWindowClosed.connect(mainWindow.close)
     mainWindow.show()
     sys.exit(app.exec_())

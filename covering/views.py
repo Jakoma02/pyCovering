@@ -118,7 +118,6 @@ class PyramidVisualView(GeneralView):
         if self.process is None:
             self.process = Process(
                 target=self._show_process,
-                daemon=True,
                 args=(model, self.queue))
             self.process.start()
 
