@@ -118,6 +118,11 @@ class PyramidVisualView(GeneralView):
 
         return vp.vec(real_x, real_y, real_z)
 
+    def reset(self):
+        while self.spheres:
+            sphere = self.spheres.pop()
+            sphere.visible = False
+
     def show(self, model):
         if self.process is None:
             self.process = Process(
@@ -138,6 +143,8 @@ class PyramidVisualView(GeneralView):
             pass
 
     def _update(self, model):
+        self.reset()
+
         for pos in model.all_positions():
             block = model.state[pos]
 
