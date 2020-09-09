@@ -8,8 +8,8 @@ from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, \
                               QActionGroup, QTextEdit, QMessageBox, \
                               QAction, QPlainTextEdit
 
-from PySide2.QtCore import Signal, QThread
-from PySide2.QtGui import QFont
+from PySide2.QtCore import Signal, QThread, Qt
+from PySide2.QtGui import QFont, QStandardItemModel, QStandardItem
 
 from ui_main import Ui_MainWindow
 from ui_about import Ui_Dialog
@@ -22,7 +22,7 @@ from ui_text_view import Ui_TextViewDialog
 from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
                             PyramidCoveringModel, CoveringTimeoutException, \
                             ImpossibleToFinishException, \
-                            CoveringStoppedException
+                            CoveringStoppedException, Block
 
 from covering.views import GeneralView, TwoDPrintView, PyramidPrintView, \
                            PyramidVisualView
@@ -90,6 +90,39 @@ class GenerateModelThread(QThread):
         except (CoveringTimeoutException, ImpossibleToFinishException):
             self.failed.emit()
             self.done.emit()
+
+
+class BlockListModel(QStandardItemModel):
+    BLOCK_ROLE = Qt.UserRole
+
+    checkedChanged = Signal(Block, bool)
+
+    def __init__(self):
+        super().__init__()
+        self.itemChanged.connect(self._emit_checked_changed)
+
+    def update_data(self, covering_model):
+        self.clear()
+
+        if covering_model is not None:
+            for block in covering_model.blocks:
+                block_str = f"Block {block.number}"
+                item = QStandardItem(block_str)
+                item.setFlags(
+                        Qt.ItemIsUserCheckable |
+                        Qt.ItemIsSelectable |
+                        Qt.ItemIsEnabled
+                )
+                checkstate = Qt.Checked if block.visible else Qt.Unchecked
+                item.setCheckState(checkstate)
+                item.setData(block, self.BLOCK_ROLE)
+                self.appendRow(item)
+
+    def _emit_checked_changed(self, item):
+        checked = item.checkState() == Qt.Checked
+        block = item.data(self.BLOCK_ROLE)
+
+        self.checkedChanged.emit(block, checked)
 
 
 class AboutDialog(QDialog, Ui_Dialog):
@@ -224,9 +257,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.info_updated.connect(self.infoText.update)
         self.info_updated.connect(self.update_view)
 
+        self.tilesListModel = BlockListModel()
+        self.tilesList.setModel(self.tilesListModel)
+
+        self.model_changed.connect(self.tilesListModel.update_data)
+        self.tilesListModel.checkedChanged.connect(self.set_block_visibility)
+
         self.model_changed.emit(self.model)
         self.update_view_type_menu()
 
+    def set_block_visibility(self, block, visible):
+        block.visible = visible
+        self.model_changed.emit(self.model)
 
     def show_about_dialog(self):
         dialog = AboutDialog(self)
