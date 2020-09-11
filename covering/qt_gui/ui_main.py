@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainMiqNuf.ui'
+## Form generated from reading UI file 'mainQybSEd.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -58,8 +58,10 @@ class Ui_MainWindow(object):
         self.actionPyramid_2.setCheckable(True)
         self.actionChange_dimensions = QAction(MainWindow)
         self.actionChange_dimensions.setObjectName(u"actionChange_dimensions")
+        self.actionChange_dimensions.setEnabled(False)
         self.actionChange_tile_size = QAction(MainWindow)
         self.actionChange_tile_size.setObjectName(u"actionChange_tile_size")
+        self.actionChange_tile_size.setEnabled(False)
         self.actionExample_type = QAction(MainWindow)
         self.actionExample_type.setObjectName(u"actionExample_type")
         self.centralwidget = QWidget(MainWindow)

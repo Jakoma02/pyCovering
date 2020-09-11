@@ -328,6 +328,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.model_type_changed.connect(self.update_model_type)
         self.model_type_changed.connect(self.update_view_type_menu)
+        self.model_type_changed.connect(self.enable_model_menu_buttons)
+
         self.model_changed.connect(
                 lambda _: self.info_updated.emit(self.model, self.view))
 
@@ -522,6 +524,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.model = model
         self.model_changed.emit(model)
         self.message("Model type updated")
+
+    def enable_model_menu_buttons(self):
+        """
+        Enable "Change dimensions" and "Change block size"
+        menu buttons that are disabled at program start
+        """
+        self.actionChange_dimensions.setEnabled(True)
+        self.actionChange_tile_size.setEnabled(True)
 
     def update_view_type(self):
         """

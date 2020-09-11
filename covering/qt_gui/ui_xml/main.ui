@@ -242,11 +242,17 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionChange_dimensions">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Change dimensions...</string>
    </property>
   </action>
   <action name="actionChange_tile_size">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Change block size...</string>
    </property>
