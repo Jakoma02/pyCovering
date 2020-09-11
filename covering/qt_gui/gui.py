@@ -9,7 +9,8 @@ from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, \
                               QAction, QPlainTextEdit
 
 from PySide2.QtCore import Signal, QThread, Qt
-from PySide2.QtGui import QFont, QStandardItemModel, QStandardItem
+from PySide2.QtGui import QFont, QStandardItemModel, QStandardItem, QIcon, \
+                          QPixmap, QColor
 
 from ui_main import Ui_MainWindow
 from ui_about import Ui_Dialog
@@ -94,12 +95,24 @@ class GenerateModelThread(QThread):
 
 class BlockListModel(QStandardItemModel):
     BLOCK_ROLE = Qt.UserRole
+    ICON_SIZE = 100
 
     checkedChanged = Signal(Block, bool)
 
     def __init__(self):
         super().__init__()
         self.itemChanged.connect(self._emit_checked_changed)
+
+    @classmethod
+    def color_icon(cls, color):
+        r, g, b = color
+
+        qcolor = QColor(r, g, b)
+        pixmap = QPixmap(cls.ICON_SIZE, cls.ICON_SIZE)
+        pixmap.fill(qcolor)
+        icon = QIcon(pixmap)
+        return icon
+
 
     def update_data(self, covering_model):
         self.clear()
@@ -114,8 +127,13 @@ class BlockListModel(QStandardItemModel):
                         Qt.ItemIsEnabled
                 )
                 checkstate = Qt.Checked if block.visible else Qt.Unchecked
+                color = block.color
+                icon = self.color_icon(color)
+
                 item.setCheckState(checkstate)
                 item.setData(block, self.BLOCK_ROLE)
+                item.setData(icon, Qt.DecorationRole)
+
                 self.appendRow(item)
 
     def _emit_checked_changed(self, item):
