@@ -511,6 +511,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.view is not None:
             self.view.close()
 
+        super().close()
+
 
 if __name__ == "__main__":
     app = QApplication()
