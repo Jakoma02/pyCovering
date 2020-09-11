@@ -6,9 +6,9 @@ from random import random
 from math import sqrt
 from multiprocessing import Process, Queue
 
-from covering.models import Block
-
 import vpython as vp
+
+from covering.models import Block
 
 
 class GeneralView:
@@ -93,15 +93,19 @@ class PyramidVisualView(GeneralView):
     RADIUS = 1
 
     def __init__(self):
-        self.colors = dict()
         self.spheres = []
 
         self.process = None
         self.queue = Queue()
 
     @staticmethod
-    def _random_color():
-        return vp.vec(random(), random(), random())
+    def _to_vpython_color(color):
+        """
+        Converts (0-255, 0-255, 0-255) -> Vector(0-1, 0-1, 0-1)
+        """
+        r, g, b = color
+
+        return vp.vec(r / 255, g / 255, b / 255)
 
     @staticmethod
     def _real_coords(pos):
@@ -151,17 +155,13 @@ class PyramidVisualView(GeneralView):
             if block is None or not block.visible:
                 continue
 
-            val = block.number
-
-            if val not in self.colors:
-                self.colors[val] = PyramidVisualView._random_color()
-            color = self.colors[val]
+            vp_color = self._to_vpython_color(block.color)
 
             rpos = PyramidVisualView._real_coords(pos)
             self.spheres.append(vp.sphere(
                 pos=rpos,
                 radius=PyramidVisualView.RADIUS,
-                color=color,
+                color=vp_color,
                 opacity=0.8))
 
     def close(self):
