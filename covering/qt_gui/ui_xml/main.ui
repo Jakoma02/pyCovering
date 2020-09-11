@@ -21,10 +21,22 @@
        <enum>Qt::Vertical</enum>
       </property>
       <widget class="QSplitter" name="splitter">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>2</verstretch>
+        </sizepolicy>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
        <widget class="QGroupBox" name="groupBox_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>2</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Info</string>
         </property>
@@ -48,6 +60,12 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
        <widget class="QGroupBox" name="groupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Generated tiles</string>
         </property>
@@ -59,6 +77,12 @@ p, li { white-space: pre-wrap; }
        </widget>
       </widget>
       <widget class="QGroupBox" name="groupBox_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title">
         <string>Messages</string>
        </property>

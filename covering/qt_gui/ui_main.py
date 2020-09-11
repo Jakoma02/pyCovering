@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'maindhrWau.ui'
+## Form generated from reading UI file 'mainMiqNuf.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -71,9 +71,19 @@ class Ui_MainWindow(object):
         self.splitter_2.setOrientation(Qt.Vertical)
         self.splitter = QSplitter(self.splitter_2)
         self.splitter.setObjectName(u"splitter")
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(2)
+        sizePolicy.setHeightForWidth(self.splitter.sizePolicy().hasHeightForWidth())
+        self.splitter.setSizePolicy(sizePolicy)
         self.splitter.setOrientation(Qt.Horizontal)
         self.groupBox_3 = QGroupBox(self.splitter)
         self.groupBox_3.setObjectName(u"groupBox_3")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy1.setHorizontalStretch(2)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
+        self.groupBox_3.setSizePolicy(sizePolicy1)
         self.horizontalLayout_2 = QHBoxLayout(self.groupBox_3)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.infoText = InfoBox(self.groupBox_3)
@@ -85,6 +95,11 @@ class Ui_MainWindow(object):
         self.splitter.addWidget(self.groupBox_3)
         self.groupBox = QGroupBox(self.splitter)
         self.groupBox.setObjectName(u"groupBox")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy2.setHorizontalStretch(1)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
+        self.groupBox.setSizePolicy(sizePolicy2)
         self.horizontalLayout_3 = QHBoxLayout(self.groupBox)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.tilesList = QListView(self.groupBox)
@@ -96,6 +111,11 @@ class Ui_MainWindow(object):
         self.splitter_2.addWidget(self.splitter)
         self.groupBox_2 = QGroupBox(self.splitter_2)
         self.groupBox_2.setObjectName(u"groupBox_2")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(1)
+        sizePolicy3.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
+        self.groupBox_2.setSizePolicy(sizePolicy3)
         self.horizontalLayout = QHBoxLayout(self.groupBox_2)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.messagesText = MessageBox(self.groupBox_2)
