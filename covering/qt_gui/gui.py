@@ -259,8 +259,6 @@ class BlockSizeDialog(QDialog, Ui_BlockSizeDialog):
 
         self.setupUi(self)
 
-        # TODO: Fix box width change
-
         self.minBlockSizeSpinBox.valueChanged.connect(
                 self.maxBlockSizeSpinBox.setMinimum)
         self.maxBlockSizeSpinBox.valueChanged.connect(

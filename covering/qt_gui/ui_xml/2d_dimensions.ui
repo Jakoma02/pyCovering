@@ -6,22 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>193</width>
-    <height>160</height>
+    <width>200</width>
+    <height>131</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>2D Rectangle dimensions</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QFormLayout" name="formLayout">
-     <property name="fieldGrowthPolicy">
-      <enum>QFormLayout::FieldsStayAtSizeHint</enum>
-     </property>
-     <property name="formAlignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
@@ -31,11 +25,23 @@
      </item>
      <item row="0" column="1">
       <widget class="QSpinBox" name="widthSpinBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="suffix">
+        <string/>
+       </property>
        <property name="minimum">
         <number>1</number>
        </property>
        <property name="maximum">
         <number>50</number>
+       </property>
+       <property name="stepType">
+        <enum>QAbstractSpinBox::DefaultStepType</enum>
        </property>
        <property name="value">
         <number>10</number>
@@ -55,7 +61,7 @@
         <number>1</number>
        </property>
        <property name="maximum">
-        <number>50</number>
+        <number>100</number>
        </property>
        <property name="singleStep">
         <number>1</number>
@@ -67,7 +73,7 @@
      </item>
     </layout>
    </item>
-   <item>
+   <item row="1" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
