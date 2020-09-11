@@ -195,6 +195,9 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionGenerate">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Generate</string>
    </property>

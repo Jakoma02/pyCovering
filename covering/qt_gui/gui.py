@@ -109,6 +109,7 @@ class GenerateModelThread(QThread):
             self.stopped.emit()
             self.done.emit()
         except (CoveringTimeoutException, ImpossibleToFinishException):
+            self.model.reset()  # Don't keep a half-covered model
             self.failed.emit()
             self.done.emit()
 
@@ -527,11 +528,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def enable_model_menu_buttons(self):
         """
-        Enable "Change dimensions" and "Change block size"
-        menu buttons that are disabled at program start
+        Enable menu buttons that are disabled at program start
         """
         self.actionChange_dimensions.setEnabled(True)
         self.actionChange_tile_size.setEnabled(True)
+        self.actionGenerate.setEnabled(True)
 
     def update_view_type(self):
         """

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainQybSEd.ui'
+## Form generated from reading UI file 'mainLFKASF.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -40,6 +40,7 @@ class Ui_MainWindow(object):
         self.actionExit.setObjectName(u"actionExit")
         self.actionGenerate = QAction(MainWindow)
         self.actionGenerate.setObjectName(u"actionGenerate")
+        self.actionGenerate.setEnabled(False)
         self.actionExit_2 = QAction(MainWindow)
         self.actionExit_2.setObjectName(u"actionExit_2")
         self.action2D_Rectangle = QAction(MainWindow)
