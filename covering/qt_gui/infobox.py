@@ -1,3 +1,8 @@
+"""
+This module contains the InfoBox and classes
+responsible for formatting its output
+"""
+
 from PySide2.QtWidgets import QTextEdit
 from covering import models, views
 
@@ -10,10 +15,19 @@ class Formatter:
 
     @classmethod
     def get_properties(cls, obj):
+        """
+        Returns a list of properties as [(name, val), (name, val), ...]
+
+        This is used by the `format` method, each subclass needs
+        to reimplement it
+        """
         raise NotImplementedError
 
     @classmethod
     def format(cls, obj):
+        """
+        Formats an object (model/view), using its `get_properties` method
+        """
         result_list = []
 
         properties = cls.get_properties(obj)
@@ -34,8 +48,12 @@ class Formatter:
 
 
 class ModelFormatter(Formatter):
+    """
+    A Formatter abstract subclass for formatting models
+    """
     MODEL_NAME = ""
 
+    # pylint: disable=arguments-differ
     @classmethod
     def get_properties(cls, model):
         covered = model.is_filled()
@@ -50,6 +68,9 @@ class ModelFormatter(Formatter):
 
 
 class RectangleModelFormatter(ModelFormatter):
+    """
+    A ModelFormatter subclass for formatting TwoDCoveringModel
+    """
     MODEL_NAME = "2D Rectangle model"
 
     @classmethod
@@ -64,6 +85,9 @@ class RectangleModelFormatter(ModelFormatter):
 
 
 class PyramidModelFormatter(ModelFormatter):
+    """
+    A ModelFormatter subclass for formatting PyramidCoveringModel
+    """
     MODEL_NAME = "3D Pyramid model"
 
     @classmethod
@@ -77,22 +101,40 @@ class PyramidModelFormatter(ModelFormatter):
 
 
 class NoModelFormatter(Formatter):
+    """
+    A ModelFormatter subclass for formatting model=None
+    """
+    # pylint: disable=arguments-differ
     @classmethod
     def get_properties(cls, model):
         return [
             ("Model name", None)
         ]
 
+
 class UnknownModelFormatter(Formatter):
+    """
+    A ModelFormatter subclass for formatting a model
+    that is not an instance of any of the known types
+    (should not happen)
+    """
+    # pylint: disable=arguments-differ
     @classmethod
     def get_properties(cls, model):
         return [
             ("Model name", "Unknown")
         ]
 
+
 class ViewFormatter(Formatter):
+    """
+    A Formatter subclass for formatting views
+    """
     @staticmethod
     def view_name(view):
+        """
+        Gets a view name from a view instance
+        """
         if view is None:
             return None
 
@@ -105,6 +147,7 @@ class ViewFormatter(Formatter):
 
         return "Unknown"
 
+    # pylint: disable=arguments-differ
     @classmethod
     def get_properties(cls, view):
         v_name = ViewFormatter.view_name(view)
@@ -112,7 +155,11 @@ class ViewFormatter(Formatter):
             ("View name", v_name)
         ]
 
+
 def get_formatter(model):
+    """
+    Returns a formatter for a given model (according to its type)
+    """
     if model is None:
         return NoModelFormatter
 
@@ -125,6 +172,11 @@ def get_formatter(model):
 
 
 class InfoBox(QTextEdit):
+    """
+    A specialized QTextEdit showing information about
+    a given model and view (updated using the `update(model, view)`
+    method
+    """
     def __init__(self, parent):
         super().__init__(parent)
 
