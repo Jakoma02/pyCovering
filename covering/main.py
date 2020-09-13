@@ -7,12 +7,15 @@ Program entrypoint, facilitates argument parsing.
 import argparse
 import sys
 
+from PySide2.QtWidgets import QApplication
+
 from covering.models import PyramidCoveringModel, \
                             TwoDCoveringModel, \
                             ImpossibleToFinishException, \
                             CoveringTimeoutException
 
-from covering.views import TwoDPrintView, PyramidPrintView, PyramidVisualView
+from covering.views import TwoDPrintView, PyramidPrintView, \
+                           PyramidVisualView, TwoDVisualView
 
 COVERING_ATTEMPTS = 100
 
@@ -22,6 +25,29 @@ class TooManyAttemptsException(Exception):
     This exception is raised if the covering attempts limit
     was reached
     """
+
+
+def qapp_decorator(cls):
+    """
+    This function takes a view using QWidgets
+    and creates a QApplication for it
+    """
+    class Wrapped(cls):
+        """
+        The new, modified class
+        """
+        def __init__(self):
+            self.app = QApplication()
+            cls.__init__(self)
+
+        def show(self, model):
+            """
+            Shows the view, starts the QApplication
+            """
+            cls.show(self, model)
+            self.app.exec_()
+
+    return Wrapped
 
 
 def check_args(args, parser):
@@ -130,7 +156,11 @@ def get_model_view(args):
     elif args.model == "2d":
         model = TwoDCoveringModel(args.width, args.height, args.min_block_size,
                                   args.max_block_size, args.verbose)
-        view = TwoDPrintView()
+
+        if args.visual:
+            view = qapp_decorator(TwoDVisualView)()
+        else:
+            view = TwoDPrintView()
 
     return (model, view)
 

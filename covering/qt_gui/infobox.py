@@ -140,6 +140,8 @@ class ViewFormatter(Formatter):
 
         if isinstance(view, views.TwoDPrintView):
             return "2D Print view"
+        if isinstance(view, views.TwoDVisualView):
+            return "2D Visual view"
         if isinstance(view, views.PyramidPrintView):
             return "Pyramid Print view"
         if isinstance(view, views.PyramidVisualView):

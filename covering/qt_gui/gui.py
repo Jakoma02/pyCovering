@@ -30,7 +30,23 @@ from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
                             CoveringStoppedException, Block
 
 from covering.views import GeneralView, TwoDPrintView, PyramidPrintView, \
-                           PyramidVisualView
+                           PyramidVisualView, TwoDVisualView
+
+
+def parented_decorator(cls, parent):
+    """
+    This function takes (typically) a QDialog subclass
+    and implicitly passes `parent` as the dialog parent
+    in constructor
+    """
+    class Wrapper(cls):
+        """
+        This is the new class `cls` is turned into.
+        """
+        def __init__(self):
+            super().__init__(parent)
+
+    return Wrapper
 
 
 def text_view_decorator(cls, parent):
@@ -586,14 +602,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if isinstance(model, TwoDCoveringModel):
             return [
-                ("Print view", text_view_decorator(TwoDPrintView, self)),
+                ("2D Print view", text_view_decorator(TwoDPrintView, self)),
+                ("2D Visual view", parented_decorator(TwoDVisualView, self))
             ]
 
         if isinstance(model, PyramidCoveringModel):
             return [
-                    ("Print view",
+                    ("Pyramid Print view",
                         text_view_decorator(PyramidPrintView, self)),
-                    ("Visual view", PyramidVisualView)
+                    ("Pyramid Visual view", PyramidVisualView)
             ]
 
         return []

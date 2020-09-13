@@ -2,13 +2,14 @@
 This module contains various views for all covering models
 """
 
-from random import random
 from math import sqrt
 from multiprocessing import Process, Queue
+from PySide2.QtWidgets import QDialog, QApplication
 
 import vpython as vp
 
 from covering.models import Block
+from covering.qt_gui.ui_two_d_visual_dialog import Ui_Dialog
 
 
 class GeneralView:
@@ -46,6 +47,21 @@ class TwoDPrintView(GeneralView):
             p_row = "".join([(str(x.number) if x.visible else "")
                              .center(width) for x in row])
             print(p_row)
+
+
+class TwoDVisualView(QDialog, Ui_Dialog):
+    """
+    A view for TwoDCoveringModel, shows the resulting
+    covering visually in a QDialog
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setupUi(self)
+
+    def show(self, model):
+        self.widget.show(model)
+        QDialog.show(self)
 
 
 class PyramidPrintView(GeneralView):
@@ -123,6 +139,9 @@ class PyramidVisualView(GeneralView):
         return vp.vec(real_x, real_y, real_z)
 
     def reset(self):
+        """
+        Hides and deletes all already shown spheres
+        """
         while self.spheres:
             sphere = self.spheres.pop()
             sphere.visible = False
@@ -131,12 +150,12 @@ class PyramidVisualView(GeneralView):
         if self.process is None:
             self.process = Process(
                 target=self._show_process,
-                args=(model, self.queue))
+                args=(self.queue,))
             self.process.start()
 
         self.queue.put(model)
 
-    def _show_process(self, model, queue):
+    def _show_process(self, queue):
         try:
             while True:
                 if not queue.empty():
