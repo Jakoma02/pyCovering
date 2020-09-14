@@ -14,13 +14,13 @@ program instalovat i na ostatních platformách)_
 
 1) _(Volitelné)_ Aktivujte `virtualenv`
 ```
-> python -m venv venv
-> source ./venv/bin/activate
+$ python -m venv venv
+$ source ./venv/bin/activate
 ```
 
 2) Nainstalujte program pomocí `setup.py`
 ```
-> ./setup.py install
+$ ./setup.py install
 ```
 
 ## Použití
