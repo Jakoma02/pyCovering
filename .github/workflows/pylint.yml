@@ -23,4 +23,4 @@ jobs:
     - name: Test with pytest
       # Ignore Qt designer generated ui_*.py files
       run: |
-        pylint `ls -R|grep .py$|grep -E -v "ui_.*\.py" | xargs`
+        pylint $( find -name '*.py' -not -name '*ui_*.py' )
