@@ -36,14 +36,14 @@ covering-cli {2d,pyramid} <model-arguments>
 Argumenty modelu jsou
 
 1) společné
-  - `--help`
-  - `--min-block-size/-mib`
-  - `--max-block-size/-mab`
-  - `--verbose/-v`
+   - `--help`
+   - `--min-block-size/-mib`
+   - `--max-block-size/-mab`
+   - `--verbose/-v`
 2) 2d
-  - `--height`
-  - `--width`
-  - `--visual` 
+   - `--height`
+   - `--width`
+   - `--visual` 
 3) pyramid
-  - `--size/s`
-  - `--visual`
+   - `--size/s`
+   - `--visual`
