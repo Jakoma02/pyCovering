@@ -13,7 +13,7 @@ from covering.models import PyramidCoveringModel, \
                             CoveringTimeoutException
 
 from covering.views import TwoDPrintView, PyramidPrintView, PyramidVisualView
-from covering.constraints import string_constraint, path_constraint
+from covering.constraints import PathConstraintWatcher
 
 COVERING_ATTEMPTS = 100
 
@@ -171,11 +171,11 @@ def set_constraints(model, args):
     """
     Set model constraints according to args values
     """
-    if args.string:
-        model.add_constraint(string_constraint)
+    # if args.string:
+        # model.add_constraint(string_constraint)
 
     if args.path:
-        model.add_constraint(path_constraint)
+        model.add_constraint(PathConstraintWatcher)
 
 
 def main():

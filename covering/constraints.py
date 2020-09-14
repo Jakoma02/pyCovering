@@ -28,7 +28,7 @@ class PathConstraintWatcher(GeneralConstraintWatcher):
     def _load_last_state(self):
         self.end1, self.end2 = self._states[-1]
 
-    def add_position(self, pos):
+    def check_position(self, pos):
         self._load_last_state()
 
         if self.end1 is None:
@@ -39,11 +39,19 @@ class PathConstraintWatcher(GeneralConstraintWatcher):
         e1_neighbors = self.model._neighbors(self.end1)
         if pos in e1_neighbors:
             self.end1 = pos
+
+            if self.end2 is None:
+                self.end2 = self.end1
+
             return True
 
         e2_neighbors = self.model._neighbors(self.end2)
         if pos in e2_neighbors:
             self.end2 = pos
+
+            if self.end1 is None:
+                self.end1 = self.end2
+
             return True
 
         return False
