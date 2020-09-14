@@ -32,9 +32,12 @@ class TwoDVisualWidget(QWidget):
         painter = QPainter(self)
 
         device = painter.device()
-        min_canvas_size = min(device.width(), device.height())
-        max_tile_count = max(self.model.width, self.model.height)
-        tile_size = min_canvas_size // max_tile_count
+
+        optimal_vertical_tile_size = device.height() // self.model.height
+        optimal_horizontal_tile_size = device.width() // self.model.width
+
+        tile_size = min(optimal_vertical_tile_size,
+                        optimal_horizontal_tile_size)
 
         brush = QBrush()
         brush.setStyle(Qt.SolidPattern)
