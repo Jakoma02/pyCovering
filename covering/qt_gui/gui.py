@@ -122,6 +122,7 @@ class GenerateModelThread(QThread):
             self.success.emit()
             self.done.emit()
         except CoveringStoppedException:
+            self.model.reset()
             self.stopped.emit()
             self.done.emit()
         except (CoveringTimeoutException, ImpossibleToFinishException):
