@@ -1,3 +1,5 @@
+![Pylint badge](https://github.com/Jakoma02/covering/workflows/Pylint/badge.svg)
+
 # Covering (TODO: jméno)
 Zápočtový program pro p2x
 
