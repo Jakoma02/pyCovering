@@ -4,7 +4,7 @@ This module contains various views for all covering models
 
 from math import sqrt
 from multiprocessing import Process, Queue
-from PySide2.QtWidgets import QDialog, QApplication
+from PySide2.QtWidgets import QDialog
 
 import vpython as vp
 

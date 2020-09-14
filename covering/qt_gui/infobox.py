@@ -106,7 +106,7 @@ class NoModelFormatter(Formatter):
     """
     # pylint: disable=arguments-differ
     @classmethod
-    def get_properties(cls, model):
+    def get_properties(cls, _):
         return [
             ("Model name", None)
         ]
@@ -120,7 +120,7 @@ class UnknownModelFormatter(Formatter):
     """
     # pylint: disable=arguments-differ
     @classmethod
-    def get_properties(cls, model):
+    def get_properties(cls, _):
         return [
             ("Model name", "Unknown")
         ]
@@ -179,9 +179,6 @@ class InfoBox(QTextEdit):
     a given model and view (updated using the `update(model, view)`
     method
     """
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def update(self, model, view):
         model_formatter = get_formatter(model)
         model_info = model_formatter.format(model)

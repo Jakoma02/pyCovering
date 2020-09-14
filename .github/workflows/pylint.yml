@@ -20,7 +20,7 @@ jobs:
     - name: Install python requirements
       run: |
         pip install -r requirements.txt -r requirements-dev.txt
-    - name: Test with pytest
+    - name: Run pylint
       # Ignore Qt designer generated ui_*.py files
       run: |
-        find covering scripts -name '*.py' -not -name '*ui_*.py' | xargs pylint
+        find covering tests -name '*.py' -not -name '*ui_*.py' | xargs pylint

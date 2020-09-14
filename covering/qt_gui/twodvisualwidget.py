@@ -1,3 +1,7 @@
+"""
+One-class module, see `TwoDVisualWidget`
+"""
+
 from PySide2.QtWidgets import QWidget
 from PySide2.QtCore import QRect, Qt
 from PySide2.QtGui import QPainter, QBrush, QColor
@@ -6,6 +10,10 @@ from covering.models import Block
 
 
 class TwoDVisualWidget(QWidget):
+    """
+    A widget visually showing the state of TwoDCoveringModule,
+    being the core of TwoDVisualView
+    """
     START_X, START_Y = 0, 0
 
     def __init__(self, parent=None):
@@ -16,7 +24,11 @@ class TwoDVisualWidget(QWidget):
         self.model = model
         self.repaint()
 
+    # pylint: disable=too-many-locals
     def paintEvent(self, _):
+        """
+        Paints the widget contents
+        """
         painter = QPainter(self)
 
         device = painter.device()
