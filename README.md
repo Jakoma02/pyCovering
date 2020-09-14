@@ -4,6 +4,8 @@
 # Covering (TODO: jméno)
 Zápočtový program pro p2x
 
+![Screenshot](images/gui_screenshot.png)
+
 ## Instalace
 
 ### Minimální požadavky
