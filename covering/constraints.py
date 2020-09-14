@@ -1,3 +1,58 @@
+class GeneralConstraintWatcher:
+    def __init__(self):
+        self._states = []
+
+    def rollback_state(self):
+        self._states.pop()
+
+    def commit(self):
+        raise NotImplementedError
+
+    def check_position(self, pos):
+        """
+        Returns True or False
+
+        TODO: Rewrite docstring
+        """
+        raise NotImplementedError
+
+
+class PathConstraintWatcher(GeneralConstraintWatcher):
+    def __init__(self, model):
+        self.model = model
+        self._states = [(None, None)]
+
+        self.end1 = None
+        self.end2 = None
+
+    def _load_last_state(self):
+        self.end1, self.end2 = self._states[-1]
+
+    def add_position(self, pos):
+        self._load_last_state()
+
+        if self.end1 is None:
+            self.end1 = pos
+            self.end2 = pos
+            return True
+
+        e1_neighbors = self.model._neighbors(self.end1)
+        if pos in e1_neighbors:
+            self.end1 = pos
+            return True
+
+        e2_neighbors = self.model._neighbors(self.end2)
+        if pos in e2_neighbors:
+            self.end2 = pos
+            return True
+
+        return False
+
+    def commit(self):
+        new_state = (self.end1, self.end2)
+        self._states.append(new_state)
+
+
 def string_constraint(model, group):
     """
     No four positions shall be adjecent to each other
