@@ -2,8 +2,6 @@
 This module contains all covering models
 """
 
-# this is only required for the obsoleted old_try_cover
-# import signal  # Unix only!
 import random
 import copy
 
@@ -172,9 +170,6 @@ class GeneralCoveringModel:
 
         self.stopped = False  # Was covering interrupted by another thread
 
-        # Set timeout handler
-        # signal.signal(signal.SIGALRM, GeneralCoveringModel._timeout_handler)
-
         self.reset()
 
     @classmethod
@@ -331,10 +326,6 @@ class GeneralCoveringModel:
         self.stopped = False
         self._coverer.try_cover(check_finishable)
 
-    @staticmethod
-    def _timeout_handler(sig, frame):
-        raise CoveringTimeoutException("Time exceeded")
-
     def _empty_neighbors(self, pos, state=None):
         if state is None:
             state = self.state
@@ -396,7 +387,7 @@ class GeneralCoveringModel:
                 generated_pos = next(last_gen)
                 curr_generated.append(generated_pos)
 
-                state_copy[generated_pos] = Block.PLACEHOLDER  # Placeholder
+                state_copy[generated_pos] = Block.PLACEHOLDER
 
                 if len(curr_generated) == step_size:
                     if not check_finishable or \
