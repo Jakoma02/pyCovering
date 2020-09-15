@@ -4,7 +4,7 @@ responsible for formatting its output
 """
 
 from PySide2.QtWidgets import QTextEdit
-from covering import models, views
+from covering import models, views, constraints
 
 
 class Formatter:
@@ -53,16 +53,33 @@ class ModelFormatter(Formatter):
     """
     MODEL_NAME = ""
 
+    @staticmethod
+    def constraint_name(watcher):
+        """
+        Return the name of given constraint
+        """
+        if watcher is constraints.PathConstraintWatcher:
+            return "Path blocks"
+
+        return "Unknown"
+
     # pylint: disable=arguments-differ
     @classmethod
     def get_properties(cls, model):
         covered = model.is_filled()
         state = "Covered" if covered else "Not covered"
 
+        constraint_names = [cls.constraint_name(x)
+                            for x in model.constraint_watchers]
+
+        cstr_name_string = ", ".join(constraint_names) \
+                           if constraint_names else "None"
+
         return [
             ("Model name", cls.MODEL_NAME),
             ("Min block size", model.min_block_size),
             ("Max block size", model.max_block_size),
+            ("Constraints", cstr_name_string),
             ("State", state)
         ]
 

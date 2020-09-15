@@ -168,7 +168,7 @@ class GeneralCoveringModel:
 
         self.pos = None  # Implementations will change this in reset()
 
-        self._constraint_watchers = []
+        self.constraint_watchers = []
         self.stopped = False  # Was covering interrupted by another thread
 
         self.reset()
@@ -365,9 +365,6 @@ class GeneralCoveringModel:
         """
         Returns a tuple of positions of a valid step
         starting with pos
-
-        `constraints` is a list of functions (model, [position]) -> bool, that
-        return true if the group fulfils the constraint
         """
 
         self.message(f"\t\t\tLooking for a valid block/step "
@@ -378,7 +375,7 @@ class GeneralCoveringModel:
         state_copy = copy.deepcopy(self.state)
 
         watcher_instances = [watcher(self, pos, state_copy)
-                             for watcher in self._constraint_watchers]
+                             for watcher in self.constraint_watchers]
 
         if pos is None:
             return None
@@ -494,7 +491,7 @@ class GeneralCoveringModel:
         This resets the model.
         """
 
-        self._constraint_watchers.append(watcher_cls)
+        self.constraint_watchers.append(watcher_cls)
         self.reset()
 
     def remove_constraint(self, watcher_cls):
@@ -503,7 +500,7 @@ class GeneralCoveringModel:
 
         This resets the model.
         """
-        self._constraint_watchers.remove(watcher_cls)
+        self.constraint_watchers.remove(watcher_cls)
 
         self.reset()
 
