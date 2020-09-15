@@ -677,15 +677,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.update_view_type()
 
+    def watcher_set_active(self, constraint, value):
+        """
+        A slot, activate/deactivate constraint depending on value (True/False)
+        """
+
+        if value is True:
+            self.model.add_constraint(constraint)
+        else:
+            self.model.remove_constraint(constraint)
+
+        self.model_changed.emit(self.model)
+        self.message("Constraint settings changed")
+
     def update_constraints_menu(self):
         """
         Updates options for model constraints after model type change
         """
-        def watcher_set_active(constraint, value):
-            if value is True:
-                self.model.add_constraint(constraint)
-            else:
-                self.model.remove_constraint(constraint)
 
         cstr_menu = self.menuConstraints
         cstr_menu.clear()
@@ -698,7 +706,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             action.setCheckable(True)
 
             action.toggled.connect(lambda val, watcher=watcher:
-                                   watcher_set_active(watcher, val))
+                                   self.watcher_set_active(watcher, val))
 
             cstr_menu.addAction(action)
 

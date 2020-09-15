@@ -489,15 +489,23 @@ class GeneralCoveringModel:
 
     def add_constraint(self, watcher_cls):
         """
-        Add a new model constraint watcher
+        Add a new model constraint watcher.
+
+        This resets the model.
         """
+
         self._constraint_watchers.append(watcher_cls)
+        self.reset()
 
     def remove_constraint(self, watcher_cls):
         """
-        Remove a model constraint watcher from the list
+        Remove a model constraint watcher from the list.
+
+        This resets the model.
         """
         self._constraint_watchers.remove(watcher_cls)
+
+        self.reset()
 
 
 class GeneralCoveringState:
