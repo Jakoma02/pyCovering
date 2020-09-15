@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainbIwDcd.ui'
+## Form generated from reading UI file 'mainWLIAru.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -196,7 +196,7 @@ class Ui_MainWindow(object):
         self.actionDocumentation.setText(QCoreApplication.translate("MainWindow", u"Documentation", None))
         self.actionAbout_2.setText(QCoreApplication.translate("MainWindow", u"About", None))
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
-        self.actionGenerate.setText(QCoreApplication.translate("MainWindow", u"Generate", None))
+        self.actionGenerate.setText(QCoreApplication.translate("MainWindow", u"Cover", None))
         self.actionExit_2.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.action2D_Rectangle.setText(QCoreApplication.translate("MainWindow", u"2D Rectangle", None))
         self.actionPyramid.setText(QCoreApplication.translate("MainWindow", u"Pyramid", None))
@@ -216,7 +216,7 @@ class Ui_MainWindow(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;\"><br /></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600; color:#000000;\">Selected view:</span><span style=\" color:#000000;\"> </sp"
                         "an><span style=\" color:#aa0000;\">none</span></p></body></html>", None))
-        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Generated tiles", None))
+        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Generated blocks", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Messages", None))
         self.menuModel.setTitle(QCoreApplication.translate("MainWindow", u"App", None))
         self.menuModel_2.setTitle(QCoreApplication.translate("MainWindow", u"Model", None))

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>2D Visual Covering model</string>
+   <string>2D Visual Covering view</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
