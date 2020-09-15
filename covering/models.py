@@ -221,7 +221,10 @@ class GeneralCoveringModel:
     def _next_position(self, pos):
         raise NotImplementedError
 
-    def _neighbors(self, pos):
+    def neighbors(self, pos):
+        """
+        Returns positions of all valid neighbors of position `pos`
+        """
         raise NotImplementedError
 
     def total_positions(self):
@@ -333,7 +336,7 @@ class GeneralCoveringModel:
 
         result = set()
 
-        for nbr in self._neighbors(pos):
+        for nbr in self.neighbors(pos):
             if state[nbr] is not Block.EMPTY:
                 continue
             result.add(nbr)
@@ -457,7 +460,7 @@ class GeneralCoveringModel:
                 visited[pos] = Block.PLACEHOLDER
                 component_size += 1  # Me
 
-                for nei_pos in self._neighbors(pos):
+                for nei_pos in self.neighbors(pos):
                     stack.append(nei_pos)
 
             return component_size
@@ -611,7 +614,7 @@ class TwoDCoveringModel(GeneralCoveringModel):
 
         return None
 
-    def _neighbors(self, pos):
+    def neighbors(self, pos):
         neighbors = [
             (pos[0] - 1, pos[1]),
             (pos[0] + 1, pos[1]),
@@ -717,7 +720,7 @@ class PyramidCoveringModel(GeneralCoveringModel):
 
         return True
 
-    def _neighbors(self, pos):
+    def neighbors(self, pos):
         x, y, z = pos
 
         neighbors = [
