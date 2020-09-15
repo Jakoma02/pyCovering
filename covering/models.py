@@ -489,9 +489,15 @@ class GeneralCoveringModel:
 
     def add_constraint(self, watcher_cls):
         """
-        Add a new model constraint
+        Add a new model constraint watcher
         """
         self._constraint_watchers.append(watcher_cls)
+
+    def remove_constraint(self, watcher_cls):
+        """
+        Remove a model constraint watcher from the list
+        """
+        self._constraint_watchers.remove(watcher_cls)
 
 
 class GeneralCoveringState:

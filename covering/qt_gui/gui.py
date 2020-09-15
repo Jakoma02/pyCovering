@@ -32,6 +32,8 @@ from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
 from covering.views import GeneralView, TwoDPrintView, PyramidPrintView, \
                            PyramidVisualView, TwoDVisualView
 
+from covering.constraints import PathConstraintWatcher
+
 
 def parented_decorator(cls, parent):
     """
@@ -346,6 +348,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.model_type_changed.connect(self.update_model_type)
         self.model_type_changed.connect(self.update_view_type_menu)
+        self.model_type_changed.connect(self.update_constraints_menu)
         self.model_type_changed.connect(self.enable_model_menu_buttons)
 
         self.model_changed.connect(
@@ -616,9 +619,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         return []
 
+    @staticmethod
+    def model_constraints(model):
+        """
+        Returns a list of tuples for all constraint watchers
+        for given mode as  (name, class)
+        """
+
+        if isinstance(model, TwoDCoveringModel):
+            return [
+                    ("Path blocks", PathConstraintWatcher)
+            ]
+
+        if isinstance(model, PyramidCoveringModel):
+            return [
+                    ("Path blocks", PathConstraintWatcher)
+            ]
+
+        return []
+
     def update_view_type_menu(self):
         """
-        Updates options for view type menu afted model change
+        Updates options for view type menu afted model type change
         """
         view_type_menu = self.menuType_2
         view_type_menu.clear()
@@ -654,6 +676,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.view_type_group.addAction(action)
 
         self.update_view_type()
+
+    def update_constraints_menu(self):
+        """
+        Updates options for model constraints after model type change
+        """
+        def watcher_set_active(constraint, value):
+            if value is True:
+                self.model.add_constraint(constraint)
+            else:
+                self.model.remove_constraint(constraint)
+
+        cstr_menu = self.menuConstraints
+        cstr_menu.clear()
+
+        all_constraints = self.model_constraints(self.model)
+
+        for name, watcher in all_constraints:
+            action = QAction(self)
+            action.setText(name)
+            action.setCheckable(True)
+
+            action.toggled.connect(lambda val, watcher=watcher:
+                                   watcher_set_active(watcher, val))
+
+            cstr_menu.addAction(action)
+
+        cstr_menu.setEnabled(True)
 
     def close(self):
         """

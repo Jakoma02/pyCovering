@@ -128,10 +128,21 @@ p, li { white-space: pre-wrap; }
      <addaction name="action2D_Rectangle_2"/>
      <addaction name="actionPyramid_2"/>
     </widget>
+    <widget class="QMenu" name="menuConstraints">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Constraints</string>
+     </property>
+     <addaction name="actionPlaceholder"/>
+    </widget>
     <addaction name="menuType"/>
     <addaction name="separator"/>
     <addaction name="actionChange_dimensions"/>
     <addaction name="actionChange_tile_size"/>
+    <addaction name="separator"/>
+    <addaction name="menuConstraints"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -263,6 +274,17 @@ p, li { white-space: pre-wrap; }
   <action name="actionExample_type">
    <property name="text">
     <string>Example type</string>
+   </property>
+  </action>
+  <action name="actionPlaceholder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Placeholder</string>
    </property>
   </action>
  </widget>

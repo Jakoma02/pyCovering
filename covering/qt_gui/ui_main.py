@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainLFKASF.ui'
+## Form generated from reading UI file 'mainbIwDcd.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -65,6 +65,10 @@ class Ui_MainWindow(object):
         self.actionChange_tile_size.setEnabled(False)
         self.actionExample_type = QAction(MainWindow)
         self.actionExample_type.setObjectName(u"actionExample_type")
+        self.actionPlaceholder = QAction(MainWindow)
+        self.actionPlaceholder.setObjectName(u"actionPlaceholder")
+        self.actionPlaceholder.setCheckable(True)
+        self.actionPlaceholder.setEnabled(True)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -141,6 +145,9 @@ class Ui_MainWindow(object):
         self.menuModel_2.setObjectName(u"menuModel_2")
         self.menuType = QMenu(self.menuModel_2)
         self.menuType.setObjectName(u"menuType")
+        self.menuConstraints = QMenu(self.menuModel_2)
+        self.menuConstraints.setObjectName(u"menuConstraints")
+        self.menuConstraints.setEnabled(False)
         self.menuView = QMenu(self.menubar)
         self.menuView.setObjectName(u"menuView")
         self.menuType_2 = QMenu(self.menuView)
@@ -163,8 +170,11 @@ class Ui_MainWindow(object):
         self.menuModel_2.addSeparator()
         self.menuModel_2.addAction(self.actionChange_dimensions)
         self.menuModel_2.addAction(self.actionChange_tile_size)
+        self.menuModel_2.addSeparator()
+        self.menuModel_2.addAction(self.menuConstraints.menuAction())
         self.menuType.addAction(self.action2D_Rectangle_2)
         self.menuType.addAction(self.actionPyramid_2)
+        self.menuConstraints.addAction(self.actionPlaceholder)
         self.menuView.addAction(self.menuType_2.menuAction())
         self.menuType_2.addAction(self.actionExample_type)
         self.menuHelp.addAction(self.actionDocumentation)
@@ -196,6 +206,7 @@ class Ui_MainWindow(object):
         self.actionChange_dimensions.setText(QCoreApplication.translate("MainWindow", u"Change dimensions...", None))
         self.actionChange_tile_size.setText(QCoreApplication.translate("MainWindow", u"Change block size...", None))
         self.actionExample_type.setText(QCoreApplication.translate("MainWindow", u"Example type", None))
+        self.actionPlaceholder.setText(QCoreApplication.translate("MainWindow", u"Placeholder", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Info", None))
         self.infoText.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -210,6 +221,7 @@ class Ui_MainWindow(object):
         self.menuModel.setTitle(QCoreApplication.translate("MainWindow", u"App", None))
         self.menuModel_2.setTitle(QCoreApplication.translate("MainWindow", u"Model", None))
         self.menuType.setTitle(QCoreApplication.translate("MainWindow", u"Type", None))
+        self.menuConstraints.setTitle(QCoreApplication.translate("MainWindow", u"Constraints", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
         self.menuType_2.setTitle(QCoreApplication.translate("MainWindow", u"Type", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
