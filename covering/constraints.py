@@ -18,40 +18,38 @@ class GeneralConstraintWatcher:
 
 
 class PathConstraintWatcher(GeneralConstraintWatcher):
-    def __init__(self, model):
+    def __init__(self, model, pos, state):
         self.model = model
-        self._states = [(None, None)]
+        self._state = state
+        self._states = []
 
-        self.end1 = None
-        self.end2 = None
+        self.end1 = pos
+        self.end2 = pos
+
+        self.commit()
 
     def _load_last_state(self):
         self.end1, self.end2 = self._states[-1]
 
     def check_position(self, pos):
+        from covering.models import Block
+
         self._load_last_state()
 
-        if self.end1 is None:
+        pos_neighbors = list(self.model._neighbors(pos))
+        block_neighbors = [x for x in pos_neighbors
+                           if self._state[x] is Block.PLACEHOLDER]
+
+        # If more than one neighbors are placeholders, then this is not a path
+        if len(block_neighbors) > 1:
+            return False
+
+        if self.end1 in block_neighbors:
             self.end1 = pos
-            self.end2 = pos
             return True
 
-        e1_neighbors = self.model._neighbors(self.end1)
-        if pos in e1_neighbors:
-            self.end1 = pos
-
-            if self.end2 is None:
-                self.end2 = self.end1
-
-            return True
-
-        e2_neighbors = self.model._neighbors(self.end2)
-        if pos in e2_neighbors:
+        if self.end2 in block_neighbors:
             self.end2 = pos
-
-            if self.end1 is None:
-                self.end1 = self.end2
-
             return True
 
         return False

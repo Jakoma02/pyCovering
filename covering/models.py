@@ -366,6 +366,7 @@ class GeneralCoveringModel:
         `constraints` is a list of functions (model, [position]) -> bool, that
         return true if the group fulfils the constraint
         """
+
         self.message(f"\t\t\tLooking for a valid block/step "
                      f"of size {step_size}...")
         iterables = []
@@ -373,10 +374,13 @@ class GeneralCoveringModel:
 
         state_copy = copy.deepcopy(self.state)
 
+        watcher_instances = [watcher(self, pos, state_copy)
+                             for watcher in self._constraint_watchers]
+
         if pos is None:
             return None
 
-        state_copy[pos] = -1
+        state_copy[pos] = Block.PLACEHOLDER
 
         new_gen = iter(self._group_neighbors(curr_generated, state=state_copy))
         iterables.append(new_gen)
@@ -391,14 +395,11 @@ class GeneralCoveringModel:
                 generated_pos = next(last_gen)
 
                 if not all((watcher.check_position(generated_pos)
-                            for watcher in self._constraint_watchers)):
+                            for watcher in watcher_instances)):
                     # At least one constraint failed
-                    print("Some constraint failed")
                     continue
 
-                print("All constraints OK")
-
-                for watcher in self._constraint_watchers:
+                for watcher in watcher_instances:
                     # Commit the new tile to watchers
                     watcher.commit()
 
@@ -424,7 +425,7 @@ class GeneralCoveringModel:
                 last_pos = curr_generated.pop()
                 state_copy[last_pos] = Block.EMPTY
 
-                for watcher in self._constraint_watchers:
+                for watcher in watcher_instances:
                     # Return all watchers state to the one before the last
                     # position
                     watcher.rollback_state()
@@ -483,13 +484,11 @@ class GeneralCoveringModel:
 
         return True
 
-    def add_constraint(self, cls):
+    def add_constraint(self, watcher_cls):
         """
         Add a new model constraint
         """
-        watcher = cls(self)
-
-        self._constraint_watchers.append(watcher)
+        self._constraint_watchers.append(watcher_cls)
 
 
 class GeneralCoveringState:
