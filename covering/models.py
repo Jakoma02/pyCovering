@@ -2,7 +2,6 @@
 This module contains all covering models
 """
 
-import signal  # Unix only!
 import random
 import copy
 
@@ -21,6 +20,135 @@ class CoveringTimeoutException(Exception):
     """
 
 
+class CoveringStoppedException(Exception):
+    """
+    This exceptions is raised if the covering
+    was stopped by `model.stop_covering()`
+    """
+
+
+class Block:
+    """
+    This class represents one block in the model
+    """
+    def __init__(self, number):
+        self.number = number
+        self.positions = []
+        self.color = self.random_color()
+        self.visible = True
+
+    @staticmethod
+    def random_color():
+        """
+        This generates a random color for the model as (0-255, 0-255, 0-255)
+        """
+        return tuple((random.randint(0, 255) for _ in range(3)))
+
+    def add_position(self, pos):
+        """
+        Adds `pos` to the block
+        """
+        self.positions.append(pos)
+
+    def size(self):
+        """
+        Returns the size of the blocks
+        """
+        return len(self.positions)
+
+    @classmethod
+    def setup_static_instances(cls):
+        """
+        As is is (probably?) impossible to create static `Block`-type members
+        directly, this method needs to be called once befero they can be used
+        """
+        cls.EMPTY = Block(-1)
+        cls.PLACEHOLDER = Block(-2)
+
+    def __deepcopy__(self, memo):
+        return self  # HACK, in this case we don't need to go THIS deep
+
+
+class Coverer:
+    """
+    This class contains some logic for covering the model.
+
+    It uses backtracking to be able to get out of dead-ends.  As we don't know
+    the total number of possible block shapes (and it is too costly to
+    calculate it), we try to generate a random block `ATTEMPTS` times and if
+    none if the blocks is was that wasn't tried out yet, we claim that one
+    doesn't exist.
+    """
+    ATTEMPTS = 100
+
+    def __init__(self, model):
+        self.model = model
+
+        # Backtracking stack
+        # [(used_blocks, last_block, start_pos), ...]
+        self._stack = [(set(), None, self.model.INITIAL_POSITION)]
+
+    def _random_unused_block(self, used_blocks, pos, check_finishable=True):
+        for _ in range(self.ATTEMPTS):
+            try:
+                new_block = self.model.random_block(
+                        pos, check_finishable=check_finishable)
+            except ImpossibleToFinishException:
+                # No more blocks can be generated
+                return None
+
+            sorted_block = tuple(sorted(new_block))
+
+            if sorted_block not in used_blocks:
+                # Found a good block
+                return sorted_block
+
+        # No block found, backtrack
+        return None
+
+    def try_cover(self, check_finishable=True):
+        """
+        Try to cover the model with blocks.
+
+        If it is not possible, throw an exception.
+        """
+        while self._stack:
+            used_blocks, _, pos = self._stack[-1]
+
+            new_block = self._random_unused_block(
+                    used_blocks, pos, check_finishable=check_finishable)
+
+            if new_block is None:
+                # Backtraaack
+                self._stack.pop()  # This is a deadend
+
+                if not self._stack:
+                    # Nothing to continue
+                    break
+
+                prev_used, prev_last, _ = self._stack[-1]  # One but last
+                prev_used.add(prev_last)
+                self.model.pop_block()
+                continue
+
+            # Continue with the new found block
+
+            self.model.add_block(new_block)
+
+            if self.model.is_filled():
+                return  # Great!
+
+            self._stack[-1] = (used_blocks, new_block, pos)
+
+            next_pos = self.model.next_empty(pos)
+            # Create a stack entry for the next level
+            self._stack.append((set(), None, next_pos))
+
+        raise ImpossibleToFinishException
+
+
+# I guess it is right... but I don't think it is much of an issue
+# pylint: disable=too-many-instance-attributes
 class GeneralCoveringModel:
     """
     Model encapsulating all bussiness logic
@@ -28,24 +156,33 @@ class GeneralCoveringModel:
 
     INITIAL_POSITION = None
 
-    def __init__(self, min_block_size, max_block_size):
+    def __init__(self, min_block_size, max_block_size, verbosity=0):
+        Block.setup_static_instances()
+
         self.min_block_size = min_block_size
         self.max_block_size = max_block_size
 
         self.state = self._get_state_container()
 
+        self.verbosity = verbosity
+
         self.pos = None  # Implementations will change this in reset()
 
         self._constraint_watchers = []
-
-        # Set timeout handler
-        signal.signal(signal.SIGALRM, GeneralCoveringModel._timeout_handler)
+        self.stopped = False  # Was covering interrupted by another thread
 
         self.reset()
 
     @classmethod
     def _get_state_container(cls):
         raise NotImplementedError
+
+    def message(self, msg):
+        """
+        Print a message if `-vv` is present in arguments
+        """
+        if self.verbosity >= 2:
+            print(msg)
 
     def reset(self):
         """
@@ -55,7 +192,24 @@ class GeneralCoveringModel:
         a common part meant to be called as `super().reset()`
         """
         self._empty_positions = self.total_positions()
-        self.step_nu = 1
+        self.blocks = []
+        self.block_nu = 1
+        self._coverer = Coverer(self)
+
+    def next_block(self):
+        """
+        Return a new (empty) block object
+        """
+        block = Block(self.block_nu)
+        self.block_nu += 1
+
+        return block
+
+    def stop_covering(self):
+        """
+        Stop covering the model (if covering is in progress)
+        """
+        self.stopped = True
 
     def is_filled(self):
         """
@@ -89,51 +243,66 @@ class GeneralCoveringModel:
             yield pos
             pos = self._next_position(pos)
 
-    def _next_empty(self, pos):
+    def next_empty(self, pos):
+        """
+        Return the first empty position after `pos`
+        """
         while True:
             if pos is None:
                 return None
 
-            if self.state[pos] is None:
+            if self.state[pos] is Block.EMPTY:
                 return pos
 
             pos = self._next_position(pos)
 
     def set_block_size(self, min_size, max_size):
         """
-        Sets size of the tile groups (this resets current state)
+        Sets size of the blocks (this resets current state)
         """
+        assert min_size <= max_size
+
         self.min_block_size = min_size
         self.max_block_size = max_size
         self.reset()
 
-    def add_tile(self, tile):
+    def add_block(self, block_positions):
         """
-        Add a new tile on positions from tile=[pos1, pos2, pos3, ...]
+        Add a new block on positions from block=[pos1, pos2, pos3, ...]
         """
-        for pos in tile:
-            self.state[pos] = self.step_nu
+        block_obj = self.next_block()
+        self.blocks.append(block_obj)
 
-        self.step_nu += 1
-        self._empty_positions -= len(tile)
+        for pos in block_positions:
+            self.state[pos] = block_obj
+            block_obj.positions.append(pos)
 
-    def add_random_tile(self, check_finishable=True):
-        """
-        Adds one tile (makes one step) with size in given bounds
-        """
+        self._empty_positions -= len(block_positions)
 
-        # This may need A LOT of memory if max_block_size - min_block_size
-        # is large
+    def pop_block(self):
+        """
+        Remove the most recently added block from the model
+        """
+        last = self.blocks.pop()
+
+        for pos in last.positions:
+            self.state[pos] = Block.EMPTY
+
+        self._empty_positions += len(last.positions)
+        self.block_nu -= 1
+
+    def random_block(self, position, check_finishable=True):
+        """
+        Return a random block starting at position `position`
+        (that can be inserted into the model)
+        """
         all_sizes = list(range(self.min_block_size, self.max_block_size + 1))
         random.shuffle(all_sizes)  # Try the sizes in a random order
-
-        pos = self._next_empty(self.pos)
-        self.pos = pos
 
         step_size = 0
 
         for step_size in all_sizes:
-            valid = self._valid_step(pos, step_size,
+            valid = self._valid_step(position, step_size,
                                      check_finishable=check_finishable)
             if valid is not None:
                 break
@@ -142,7 +311,7 @@ class GeneralCoveringModel:
             raise ImpossibleToFinishException(
                 "There are no more valid steps")
 
-        self.add_tile(valid)
+        return valid
 
     def empty_positions(self):
         """
@@ -150,21 +319,13 @@ class GeneralCoveringModel:
         """
         return self._empty_positions
 
-    def try_cover(self, check_finishable=True, timeout=0):
+    def try_cover(self, check_finishable=True):
         """
-        Tries to cover the whole area with tiles, throws
+        Tries to cover the whole area with blocks, throws
         an exception if not successful
         """
-        signal.alarm(timeout)  # In seconds
-
-        while not self.is_filled():
-            self.add_random_tile(check_finishable=check_finishable)
-
-        signal.alarm(0)  # Cancel alarm
-
-    @staticmethod
-    def _timeout_handler(sig, frame):
-        raise CoveringTimeoutException("Time exceeded")
+        self.stopped = False
+        self._coverer.try_cover(check_finishable)
 
     def _empty_neighbors(self, pos, state=None):
         if state is None:
@@ -173,7 +334,7 @@ class GeneralCoveringModel:
         result = set()
 
         for nbr in self._neighbors(pos):
-            if state[nbr] is not None:
+            if state[nbr] is not Block.EMPTY:
                 continue
             result.add(nbr)
 
@@ -205,6 +366,8 @@ class GeneralCoveringModel:
         `constraints` is a list of functions (model, [position]) -> bool, that
         return true if the group fulfils the constraint
         """
+        self.message(f"\t\t\tLooking for a valid block/step "
+                     f"of size {step_size}...")
         iterables = []
         curr_generated = [pos]
 
@@ -219,6 +382,10 @@ class GeneralCoveringModel:
         iterables.append(new_gen)
 
         while iterables:
+            # Another thread interrupted the covering
+            if self.stopped:
+                raise CoveringStoppedException
+
             last_gen = iterables[-1]
             try:
                 generated_pos = next(last_gen)
@@ -237,14 +404,16 @@ class GeneralCoveringModel:
 
                 curr_generated.append(generated_pos)
 
-                state_copy[generated_pos] = -1  # Placeholder
+                state_copy[generated_pos] = Block.PLACEHOLDER
 
                 if len(curr_generated) == step_size:
                     if not check_finishable or \
                            self._is_finishable(state=state_copy):
                         return tuple(curr_generated)
-                    state_copy[generated_pos] = None
+                    state_copy[generated_pos] = Block.EMPTY
                     curr_generated.pop()
+                    self.message("\t\t\tThe generated position was not "
+                                 "finishable, trying another one...")
                 else:
                     new_gen = iter(self._group_neighbors(curr_generated,
                                                          state=state_copy))
@@ -253,7 +422,7 @@ class GeneralCoveringModel:
             except StopIteration:
                 iterables.pop()
                 last_pos = curr_generated.pop()
-                state_copy[last_pos] = None
+                state_copy[last_pos] = Block.EMPTY
 
                 for watcher in self._constraint_watchers:
                     # Return all watchers state to the one before the last
@@ -277,12 +446,14 @@ class GeneralCoveringModel:
             while stack:
                 pos = stack.pop()
 
-                if state[pos] is not None:
-                    continue
-                if visited[pos]:
+                if state[pos] is not Block.EMPTY:
                     continue
 
-                visited[pos] = True
+                # HACK (EMPTY == False, PLACEHOLDER == TRUE)
+                if visited[pos] is not Block.EMPTY:
+                    continue
+
+                visited[pos] = Block.PLACEHOLDER
                 component_size += 1  # Me
 
                 for nei_pos in self._neighbors(pos):
@@ -297,7 +468,8 @@ class GeneralCoveringModel:
         visited = self._get_state_container()
 
         for pos in self.all_positions():
-            if visited[pos] or state[pos] is not None:
+            if visited[pos] is not Block.EMPTY or \
+                    state[pos] is not Block.EMPTY:
                 continue
             component_size = dfs(pos)
 
@@ -377,7 +549,7 @@ class TwoDCoveringState(GeneralCoveringState):
 
     # pylint: disable=arguments-differ
     def reset(self, width, height):
-        self._state = [[None for _ in range(width)]
+        self._state = [[Block.EMPTY for _ in range(width)]
                        for _ in range(height)]
 
     def __getitem__(self, pos):
@@ -396,10 +568,12 @@ class TwoDCoveringModel(GeneralCoveringModel):
 
     INITIAL_POSITION = (0, 0)
 
-    def __init__(self, width, height, min_block_size, max_block_size):
+    # pylint: disable=too-many-arguments
+    def __init__(self, width, height,
+                 min_block_size, max_block_size, verbosity=0):
         self.width = width
         self.height = height
-        super().__init__(min_block_size, max_block_size)
+        super().__init__(min_block_size, max_block_size, verbosity)
 
     def _get_state_container(self):
         return TwoDCoveringState(self.width, self.height)
@@ -415,7 +589,7 @@ class TwoDCoveringModel(GeneralCoveringModel):
 
     def reset(self):
         """
-        Removes all tiles, resets position
+        Removes all blocks, resets position
         """
         self.state.reset(self.width, self.height)
         self.pos = (0, 0)
@@ -464,7 +638,7 @@ class ThreeDCoveringState(GeneralCoveringState):
 
     # pylint: disable=arguments-differ
     def reset(self, xs, ys, zs):
-        self._state = [[[None for _ in range(zs)]
+        self._state = [[[Block.EMPTY for _ in range(zs)]
                         for _ in range(ys)]
                        for _ in range(xs)]
 
@@ -486,10 +660,11 @@ class PyramidCoveringModel(GeneralCoveringModel):
 
     INITIAL_POSITION = (0, 0, 0)
 
-    def __init__(self, pyramid_size, min_block_size, max_block_size):
+    def __init__(self, pyramid_size, min_block_size, max_block_size,
+                 verbosity=0):
         self.size = pyramid_size
 
-        super().__init__(min_block_size, max_block_size)
+        super().__init__(min_block_size, max_block_size, verbosity)
 
     def reset(self):
         self.state.reset(self.size, self.size, self.size)
@@ -569,3 +744,10 @@ class PyramidCoveringModel(GeneralCoveringModel):
         for nbr in neighbors:
             if self._is_valid_position(nbr):
                 yield nbr
+
+    def set_size(self, size):
+        """
+        Sets the pyramid size (this resets current state)
+        """
+        self.size = size
+        self.reset()

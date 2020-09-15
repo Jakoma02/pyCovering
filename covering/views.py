@@ -2,9 +2,14 @@
 This module contains various views for all covering models
 """
 
-from random import random
 from math import sqrt
+from multiprocessing import Process, Queue
+from PySide2.QtWidgets import QDialog
+
 import vpython as vp
+
+from covering.models import Block
+from covering.qt_gui.ui_two_d_visual_dialog import Ui_Dialog
 
 
 class GeneralView:
@@ -17,6 +22,13 @@ class GeneralView:
         """
         raise NotImplementedError
 
+    def close(self):
+        """
+        Closes the view window, if any
+
+        Doesn't do anything by default
+        """
+
 
 class TwoDPrintView(GeneralView):
     """
@@ -26,14 +38,30 @@ class TwoDPrintView(GeneralView):
     def show(self, model):
         data = model.state.raw_data()
 
-        vals = [x for row in data for x in row]
+        vals = [x.number for row in data for x in row]
         longest = max(vals)
         max_len = len(str(longest))
         width = max_len + 1
 
         for row in data:
-            p_row = "".join([str(x).center(width) for x in row])
+            p_row = "".join([(str(x.number) if x.visible else "")
+                             .center(width) for x in row])
             print(p_row)
+
+
+class TwoDVisualView(QDialog, Ui_Dialog):
+    """
+    A view for TwoDCoveringModel, shows the resulting
+    covering visually in a QDialog
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setupUi(self)
+
+    def show(self, model):
+        self.widget.show(model)
+        QDialog.show(self)
 
 
 class PyramidPrintView(GeneralView):
@@ -43,8 +71,8 @@ class PyramidPrintView(GeneralView):
     """
     @staticmethod
     def _max_len(data):
-        vals = [x for layer in data for row in layer for x in row
-                if x is not None]
+        vals = [x.number for layer in data for row in layer for x in row
+                if x is not Block.EMPTY]
         longest = max(vals)
         max_len = len(str(longest))
         return max_len
@@ -56,7 +84,8 @@ class PyramidPrintView(GeneralView):
             for i, row in enumerate(layer_data):
                 row_data = row[:layer_size-i]
                 print(i * offset * " ", end="")
-                row = "".join([str(x).ljust(width) for x in row_data])
+                row = "".join([(str(x.number) if x.visible else "")
+                              .center(width) for x in row_data])
                 print(row)
 
         data = model.state.raw_data()
@@ -80,12 +109,19 @@ class PyramidVisualView(GeneralView):
     RADIUS = 1
 
     def __init__(self):
-        self.colors = dict()
         self.spheres = []
 
+        self.process = None
+        self.queue = Queue()
+
     @staticmethod
-    def _random_color():
-        return vp.vec(random(), random(), random())
+    def _to_vpython_color(color):
+        """
+        Converts (0-255, 0-255, 0-255) -> Vector(0-1, 0-1, 0-1)
+        """
+        r, g, b = color
+
+        return vp.vec(r / 255, g / 255, b / 255)
 
     @staticmethod
     def _real_coords(pos):
@@ -102,20 +138,53 @@ class PyramidVisualView(GeneralView):
 
         return vp.vec(real_x, real_y, real_z)
 
-    def show(self, model):
-        for pos in model.all_positions():
-            val = model.state[pos]
+    def reset(self):
+        """
+        Hides and deletes all already shown spheres
+        """
+        while self.spheres:
+            sphere = self.spheres.pop()
+            sphere.visible = False
 
-            if val is None:
+    def show(self, model):
+        if self.process is None:
+            self.process = Process(
+                target=self._show_process,
+                args=(self.queue,))
+            self.process.start()
+
+        self.queue.put(model)
+
+    def _show_process(self, queue):
+        try:
+            while True:
+                if not queue.empty():
+                    last = queue.get()
+                    self._update(last)
+        except BrokenPipeError:
+            # Vpython raises this, can be ignored
+            pass
+
+    def _update(self, model):
+        self.reset()
+
+        for pos in model.all_positions():
+            block = model.state[pos]
+
+            if block is None or not block.visible:
                 continue
 
-            if val not in self.colors:
-                self.colors[val] = PyramidVisualView._random_color()
-            color = self.colors[val]
+            vp_color = self._to_vpython_color(block.color)
 
             rpos = PyramidVisualView._real_coords(pos)
             self.spheres.append(vp.sphere(
                 pos=rpos,
                 radius=PyramidVisualView.RADIUS,
-                color=color,
+                color=vp_color,
                 opacity=0.8))
+
+    def close(self):
+        if self.process is not None:
+            self.process.terminate()
+
+        self.process = None

@@ -1,2 +1,3 @@
 # Only for 3D visualization
 vpython
+pyside2

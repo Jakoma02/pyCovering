@@ -7,12 +7,15 @@ Program entrypoint, facilitates argument parsing.
 import argparse
 import sys
 
+from PySide2.QtWidgets import QApplication
+
 from covering.models import PyramidCoveringModel, \
                             TwoDCoveringModel, \
                             ImpossibleToFinishException, \
                             CoveringTimeoutException
 
-from covering.views import TwoDPrintView, PyramidPrintView, PyramidVisualView
+from covering.views import TwoDPrintView, PyramidPrintView, \
+                           PyramidVisualView, TwoDVisualView
 from covering.constraints import PathConstraintWatcher
 
 COVERING_ATTEMPTS = 100
@@ -23,6 +26,29 @@ class TooManyAttemptsException(Exception):
     This exception is raised if the covering attempts limit
     was reached
     """
+
+
+def qapp_decorator(cls):
+    """
+    This function takes a view using QWidgets
+    and creates a QApplication for it
+    """
+    class Wrapped(cls):
+        """
+        The new, modified class
+        """
+        def __init__(self):
+            self.app = QApplication()
+            cls.__init__(self)
+
+        def show(self, model):
+            """
+            Shows the view, starts the QApplication
+            """
+            cls.show(self, model)
+            self.app.exec_()
+
+    return Wrapped
 
 
 def check_args(args, parser):
@@ -79,7 +105,8 @@ def get_parser():
     general_subparser.add_argument(
         "--verbose",
         "-v",
-        action="store_true"
+        action="count",
+        default=0
     )
 
     general_subparser.add_argument(
@@ -131,15 +158,20 @@ def get_model_view(args):
     """
     if args.model == "pyramid":
         model = PyramidCoveringModel(args.size, args.min_block_size,
-                                     args.max_block_size)
+                                     args.max_block_size,
+                                     args.verbose)
         if args.visual:
             view = PyramidVisualView()
         else:
             view = PyramidPrintView()
     elif args.model == "2d":
         model = TwoDCoveringModel(args.width, args.height, args.min_block_size,
-                                  args.max_block_size)
-        view = TwoDPrintView()
+                                  args.max_block_size, args.verbose)
+
+        if args.visual:
+            view = qapp_decorator(TwoDVisualView)()
+        else:
+            view = TwoDPrintView()
 
     return (model, view)
 
@@ -149,19 +181,19 @@ def do_covering(model, attempts, args):
     Tries to cover the model `attempts` times
     """
     for i in range(attempts):
-        if args.verbose:
+        if args.verbose >= 1:
             print(f"Attempting to cover ({i + 1}th attempt)... ",
-                  end="", flush=True)
+                  flush=True)
 
         try:
             model.reset()
             model.try_cover()
         except (ImpossibleToFinishException, CoveringTimeoutException):
-            if args.verbose:
-                print("FAILED")
+            if args.verbose >= 1:
+                print("\tFAILED")
         else:
-            if args.verbose:
-                print("SUCCESS")
+            if args.verbose >= 1:
+                print("\tSUCCESS")
             return  # Success
 
     raise TooManyAttemptsException("Too many failed attempts")
@@ -172,7 +204,7 @@ def set_constraints(model, args):
     Set model constraints according to args values
     """
     # if args.string:
-        # model.add_constraint(string_constraint)
+    #   # model.add_constraint(string_constraint)
 
     if args.path:
         model.add_constraint(PathConstraintWatcher)
