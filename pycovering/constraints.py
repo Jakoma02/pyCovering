@@ -19,9 +19,10 @@ class GeneralConstraintWatcher:
     """
     # Implementations will use the arguments
     # pylint: disable=unused-argument
-    def __init__(self, model, pos, state):
+    def __init__(self, model, pos):
+        # Don't save state, use the model built in one...
+        # but be careful to return it as is was
         self.model = model
-        self._state = state  # Model state copy, this will be used
         self._states = []
 
     def rollback_state(self):
@@ -53,8 +54,8 @@ class PathConstraintWatcher(GeneralConstraintWatcher):
     This watcher ensures that all blocks forms a path. It only allows adding
     new positions to the ends of the path.
     """
-    def __init__(self, model, pos, state):
-        super().__init__(model, pos, state)
+    def __init__(self, model, pos):
+        super().__init__(model, pos)
 
         self.end1 = pos
         self.end2 = pos
@@ -74,7 +75,7 @@ class PathConstraintWatcher(GeneralConstraintWatcher):
 
         pos_neighbors = list(self.model.neighbors(pos))
         block_neighbors = [x for x in pos_neighbors
-                           if self._state[x] is Block.PLACEHOLDER]
+                           if self.model.state[x] is Block.PLACEHOLDER]
 
         # If more than one neighbors are placeholders, then this is not a path
         if len(block_neighbors) > 1:
@@ -197,8 +198,8 @@ class PlanarConstraintWatcher(GeneralConstraintWatcher):
     This watcher ensures that all blocks lie within one plane.
     It can ONLY be used with 3-dimensional covering models.
     """
-    def __init__(self, model, pos, state):
-        super().__init__(model, pos, state)
+    def __init__(self, model, pos):
+        super().__init__(model, pos)
 
         self.plane = None
 

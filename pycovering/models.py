@@ -3,7 +3,7 @@ This module contains all covering models
 """
 
 import random
-import copy
+# import copy
 
 
 class ImpossibleToFinishException(Exception):

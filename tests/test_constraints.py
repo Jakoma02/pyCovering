@@ -40,8 +40,7 @@ class TestPathConstraintWatcher(ConstraintWatcherTest):
 
     def setUp(self):
         self.model = TwoDCoveringModel(4, 4, 4, 4)
-        self.watcher = PathConstraintWatcher(self.model, self.INITIAL_POS,
-                                             self.model.state)
+        self.watcher = PathConstraintWatcher(self.model, self.INITIAL_POS)
         self.model.state[self.INITIAL_POS] = Block.PLACEHOLDER
 
     @parameterized.expand([
@@ -78,8 +77,7 @@ class TestPlanarConstraintWatcher(ConstraintWatcherTest):
 
     def setUp(self):
         self.model = PyramidCoveringModel(3, 5, 5)
-        self.watcher = PlanarConstraintWatcher(self.model, self.INITIAL_POS,
-                                               self.model.state)
+        self.watcher = PlanarConstraintWatcher(self.model, self.INITIAL_POS)
         self.model.state[self.INITIAL_POS] = Block.PLACEHOLDER
 
     @parameterized.expand([

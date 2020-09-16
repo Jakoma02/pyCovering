@@ -182,13 +182,6 @@ def get_model_view(args):
     return (model, view)
 
 
-def do_covering(model, args):
-    """
-    Tries to cover the model `attempts` times
-    """
-    # TODO: Get rid of this
-
-
 def set_constraints(model, args):
     """
     Set model constraints according to args values
