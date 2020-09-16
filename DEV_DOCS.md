@@ -84,10 +84,6 @@ Persistentnost znamená, že si watcher pamatuje i **všechny jeho předchozí
 stavy** a je schopen je (pomocí metody `rollback_state()`) obnovit. To se při
 backtrackingu hodí při vracení se ze slepých uliček.
 
-Persistentnost znamená, že si watcher pamatuje i **všechny jeho předchozí
-stavy** a je schopen je (pomocí metody `rollback_state()`) obnovit. To se při
-backtrackingu hodí při vracení se ze slepých uliček
-
 Každý watcher má metodu `check_position(pos)`. Ta nejprve načte poslední stav
 ze zásobníku stavů a pak vrátí, jestli bude po přidání pozice `pos` blok stále
 splňovat omezení. Při tom zároveň upraví svůj vnitřní stav, který po zavolání
