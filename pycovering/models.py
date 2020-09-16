@@ -92,7 +92,7 @@ class Coverer:
         for _ in range(self.ATTEMPTS):
             try:
                 new_block = self.model.random_block(
-                        pos, check_finishable=check_finishable)
+                    pos, check_finishable=check_finishable)
             except ImpossibleToFinishException:
                 # No more blocks can be generated
                 return None
@@ -116,7 +116,7 @@ class Coverer:
             used_blocks, _, pos = self._stack[-1]
 
             new_block = self._random_unused_block(
-                    used_blocks, pos, check_finishable=check_finishable)
+                used_blocks, pos, check_finishable=check_finishable)
 
             if new_block is None:
                 # Backtraaack
