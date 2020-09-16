@@ -315,7 +315,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     """
     The main GUI window
     """
-    HELP_URL = "https://www.github.com/jakoma02/covering"
+    HELP_URL = "https://www.github.com/jakoma02/pyCovering"
 
     model_type_changed = Signal()
     view_type_changed = Signal()
