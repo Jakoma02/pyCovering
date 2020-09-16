@@ -8,6 +8,8 @@ _(Tento program je zápočtovým programem z předmětu Programování II. na MF
 a obdélníkových hlavolamů, jejichž zadáním je vygenerované dílky poskládat
 tak, aby vytvořili původní tvar.
 
+**Programátorská dokumentace** je dostupná na [samostatné stránce](DEV_DOCS.md).
+
 ![Screenshot](images/gui_screenshot.png)
 
 ## Minimální požadavky
