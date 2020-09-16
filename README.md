@@ -6,23 +6,33 @@ Zápočtový program pro p2x
 
 ![Screenshot](images/gui_screenshot.png)
 
-## Instalace
-
 ### Minimální požadavky
 - Python verze **alespoň 3.6**
+
+## Instalace
 
 _(Příklady jsou uváděny pro OS Linux, ale obdobným způsobem je možné
 program instalovat i na ostatních platformách)_
 
-1) _(Volitelné)_ Aktivujte `virtualenv`
+1) Naklonujte tento repozitář na svůj počítač.
+```
+$ git clone https://github.com/Jakoma02/covering.git
+```
+
+2) Přejděte do složky s repozitářem.
+```
+$ cd covering
+```
+
+3) _(Volitelné)_ Aktivujte `virtualenv`
 ```
 $ python -m venv venv
 $ source ./venv/bin/activate
 ```
 
-2) Nainstalujte program pomocí `setup.py`
+4) Nainstalujte program pomocí nástroje pip.
 ```
-$ ./setup.py install
+$ pip install .
 ```
 
 ## Použití
