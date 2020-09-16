@@ -14,6 +14,7 @@ tak, aby vytvořili původní tvar.
 
 ## Minimální požadavky
 - Python verze **alespoň 3.6**
+- [Podporovaný systém](https://wiki.qt.io/Qt_for_Python) Qt for Python
 
 ## Instalace
 
