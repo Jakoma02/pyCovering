@@ -5,7 +5,6 @@ Program entrypoint, facilitates argument parsing.
 """
 
 import argparse
-import sys
 
 from PySide2.QtWidgets import QApplication
 
@@ -19,8 +18,6 @@ from pycovering.views import TwoDPrintView, PyramidPrintView, \
 
 from pycovering.constraints import PathConstraintWatcher,  \
                                    PlanarConstraintWatcher
-
-COVERING_ATTEMPTS = 100
 
 
 class TooManyAttemptsException(Exception):
@@ -180,27 +177,23 @@ def get_model_view(args):
     return (model, view)
 
 
-def do_covering(model, attempts, args):
+def do_covering(model, args):
     """
     Tries to cover the model `attempts` times
     """
-    for i in range(attempts):
+    if args.verbose >= 1:
+        print("Attempting to cover the model... ", flush=True)
+
+    try:
+        model.reset()
+        model.try_cover()
+    except (ImpossibleToFinishException, CoveringTimeoutException):
         if args.verbose >= 1:
-            print(f"Attempting to cover ({i + 1}th attempt)... ",
-                  flush=True)
-
-        try:
-            model.reset()
-            model.try_cover()
-        except (ImpossibleToFinishException, CoveringTimeoutException):
-            if args.verbose >= 1:
-                print("\tFAILED")
-        else:
-            if args.verbose >= 1:
-                print("\tSUCCESS")
-            return  # Success
-
-    raise TooManyAttemptsException("Too many failed attempts")
+            print("\tFAILED")
+    else:
+        if args.verbose >= 1:
+            print("\tSUCCESS")
+        return  # Success
 
 
 def set_constraints(model, args):
@@ -230,12 +223,8 @@ def main():
 
     set_constraints(model, args)
 
-    try:
-        do_covering(model, COVERING_ATTEMPTS, args)
-        view.show(model)
-    except TooManyAttemptsException:
-        print("Attempt limit reached")
-        sys.exit(1)
+    do_covering(model, args)
+    view.show(model)
 
 
 if __name__ == "__main__":
