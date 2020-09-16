@@ -23,4 +23,4 @@ jobs:
     - name: Run pylint
       # Ignore Qt designer generated ui_*.py files
       run: |
-        find covering tests -name '*.py' -not -name '*ui_*.py' | xargs pylint
+        find pycovering tests -name '*.py' -not -name '*ui_*.py' | xargs pylint

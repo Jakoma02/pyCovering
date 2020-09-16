@@ -7,7 +7,7 @@ import itertools as it
 
 from parameterized import parameterized
 
-from covering.models import TwoDCoveringModel, Block
+from pycovering.models import TwoDCoveringModel, Block
 
 
 # pylint: disable=missing-function-docstring
