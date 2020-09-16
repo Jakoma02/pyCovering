@@ -4,9 +4,13 @@
 # pyCovering
 _(Tento program je zápočtovým programem z předmětu Programování II. na MFF UK.)_
 
+**pyCovering** je open-source generátor a vizualizátor dílků pyramidových
+a obdélníkových hlavolamů, jejichž zadáním je vygenerované dílky poskládat
+tak, aby vytvořili původní tvar.
+
 ![Screenshot](images/gui_screenshot.png)
 
-### Minimální požadavky
+## Minimální požadavky
 - Python verze **alespoň 3.6**
 
 ## Instalace
@@ -21,7 +25,7 @@ $ git clone https://github.com/Jakoma02/pyCovering.git
 
 2) Přejděte do složky s repozitářem.
 ```
-$ cd covering
+$ cd pycovering
 ```
 
 3) _(Volitelné)_ Aktivujte `virtualenv`
