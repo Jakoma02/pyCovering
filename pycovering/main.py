@@ -9,14 +9,16 @@ import sys
 
 from PySide2.QtWidgets import QApplication
 
-from covering.models import PyramidCoveringModel, \
-                            TwoDCoveringModel, \
-                            ImpossibleToFinishException, \
-                            CoveringTimeoutException
+from pycovering.models import PyramidCoveringModel, \
+                              TwoDCoveringModel, \
+                              ImpossibleToFinishException, \
+                              CoveringTimeoutException
 
-from covering.views import TwoDPrintView, PyramidPrintView, \
-                           PyramidVisualView, TwoDVisualView
-from covering.constraints import PathConstraintWatcher, PlanarConstraintWatcher
+from pycovering.views import TwoDPrintView, PyramidPrintView, \
+                             PyramidVisualView, TwoDVisualView
+
+from pycovering.constraints import PathConstraintWatcher,  \
+                                   PlanarConstraintWatcher
 
 COVERING_ATTEMPTS = 100
 

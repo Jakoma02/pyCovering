@@ -7,7 +7,7 @@ Setuptools install script
 from setuptools import setup, find_packages
 
 setup(
-    name="Covering",
+    name="pyCovering",
     version="0.1",
     packages=find_packages(),
     install_requires=[
@@ -22,9 +22,9 @@ setup(
 
     entry_points="""
         [console_scripts]
-        covering-cli=covering.main:main
+        pycovering-cli=pycovering.main:main
 
         [gui_scripts]
-        covering=covering.qt_gui.gui:main
+        pycovering=pycovering.qt_gui.gui:main
     """
 )

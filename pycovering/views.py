@@ -8,8 +8,8 @@ from PySide2.QtWidgets import QDialog
 
 import vpython as vp
 
-from covering.models import Block
-from covering.qt_gui.ui_two_d_visual_dialog import Ui_Dialog
+from pycovering.models import Block
+from pycovering.qt_gui.ui_two_d_visual_dialog import Ui_Dialog
 
 
 class GeneralView:
@@ -85,7 +85,7 @@ class PyramidPrintView(GeneralView):
                 row_data = row[:layer_size-i]
                 print(i * offset * " ", end="")
                 row = "".join([(str(x.number) if x.visible else "")
-                              .center(width) for x in row_data])
+                               .center(width) for x in row_data])
                 print(row)
 
         data = model.state.raw_data()

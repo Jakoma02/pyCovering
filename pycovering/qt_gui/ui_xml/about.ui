@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>PyCover - About</string>
+   <string>PyCovering - About</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -22,7 +22,7 @@
       </font>
      </property>
      <property name="text">
-      <string>PyCover v0.1</string>
+      <string>PyCovering v0.1</string>
      </property>
     </widget>
    </item>

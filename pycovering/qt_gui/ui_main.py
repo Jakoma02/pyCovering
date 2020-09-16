@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainrZTyXg.ui'
+## Form generated from reading UI file 'mainpxReSg.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -15,8 +15,8 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
 
-from covering.qt_gui.infobox import InfoBox
-from covering.qt_gui.messagebox import MessageBox
+from pycovering.qt_gui.infobox import InfoBox
+from pycovering.qt_gui.messagebox import MessageBox
 
 
 class Ui_MainWindow(object):
@@ -188,7 +188,7 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"PyCover", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"PyCovering", None))
         self.actionModel.setText(QCoreApplication.translate("MainWindow", u"Model", None))
         self.actionView.setText(QCoreApplication.translate("MainWindow", u"View", None))
         self.actionWebpage.setText(QCoreApplication.translate("MainWindow", u"Documentation", None))

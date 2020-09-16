@@ -16,23 +16,24 @@ from PySide2.QtCore import Signal, QThread, Qt
 from PySide2.QtGui import QFont, QStandardItemModel, QStandardItem, QIcon, \
                           QPixmap, QColor
 
-from covering.qt_gui.ui_main import Ui_MainWindow
-from covering.qt_gui.ui_about import Ui_Dialog
-from covering.qt_gui.ui_2d_dimensions import Ui_TwoDDimensionsDialog
-from covering.qt_gui.ui_pyramid_dimensions import Ui_PyramidDimensionsDialog
-from covering.qt_gui.ui_block_size_dialog import Ui_BlockSizeDialog
-from covering.qt_gui.ui_covering_dialog import Ui_CoveringDialog
-from covering.qt_gui.ui_text_view import Ui_TextViewDialog
+from pycovering.qt_gui.ui_main import Ui_MainWindow
+from pycovering.qt_gui.ui_about import Ui_Dialog
+from pycovering.qt_gui.ui_2d_dimensions import Ui_TwoDDimensionsDialog
+from pycovering.qt_gui.ui_pyramid_dimensions import Ui_PyramidDimensionsDialog
+from pycovering.qt_gui.ui_block_size_dialog import Ui_BlockSizeDialog
+from pycovering.qt_gui.ui_covering_dialog import Ui_CoveringDialog
+from pycovering.qt_gui.ui_text_view import Ui_TextViewDialog
 
-from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
-                            PyramidCoveringModel, CoveringTimeoutException, \
-                            ImpossibleToFinishException, \
-                            CoveringStoppedException, Block
+from pycovering.models import GeneralCoveringModel, TwoDCoveringModel, \
+                              PyramidCoveringModel, CoveringTimeoutException, \
+                              ImpossibleToFinishException, \
+                              CoveringStoppedException, Block
 
-from covering.views import GeneralView, TwoDPrintView, PyramidPrintView, \
-                           PyramidVisualView, TwoDVisualView
+from pycovering.views import GeneralView, TwoDPrintView, PyramidPrintView, \
+                             PyramidVisualView, TwoDVisualView
 
-from covering.constraints import PathConstraintWatcher, PlanarConstraintWatcher
+from pycovering.constraints import PathConstraintWatcher, \
+                                   PlanarConstraintWatcher
 
 
 def parented_decorator(cls, parent):

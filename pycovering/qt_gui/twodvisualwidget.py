@@ -6,7 +6,7 @@ from PySide2.QtWidgets import QWidget
 from PySide2.QtCore import QRect, Qt
 from PySide2.QtGui import QPainter, QBrush, QColor
 
-from covering.models import Block
+from pycovering.models import Block
 
 
 class TwoDVisualWidget(QWidget):

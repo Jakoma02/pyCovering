@@ -1,8 +1,8 @@
 ![Pylint badge](https://github.com/Jakoma02/covering/workflows/Pylint/badge.svg)
 ![Tests badge](https://github.com/Jakoma02/covering/workflows/Python%20tests/badge.svg)
 
-# Covering (TODO: jméno)
-Zápočtový program pro p2x
+# pyCovering
+_(Tento program je zápočtovým programem z předmětu Programování II. na MFF UK.)_
 
 ![Screenshot](images/gui_screenshot.png)
 

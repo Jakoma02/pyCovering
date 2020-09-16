@@ -68,7 +68,7 @@ class PathConstraintWatcher(GeneralConstraintWatcher):
         # This is a bit ugly... but is needed, would introduce a circular
         # import
         # pylint: disable=import-outside-toplevel
-        from covering.models import Block
+        from pycovering.models import Block
 
         super().check_position(pos)
 

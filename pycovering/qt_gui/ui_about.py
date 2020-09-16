@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'abouteSWSmO.ui'
+## Form generated from reading UI file 'aboutOUrVoR.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -61,8 +61,8 @@ class Ui_Dialog(object):
     # setupUi
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"PyCover - About", None))
-        self.label.setText(QCoreApplication.translate("Dialog", u"PyCover v0.1", None))
+        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"PyCovering - About", None))
+        self.label.setText(QCoreApplication.translate("Dialog", u"PyCovering v0.1", None))
         self.label_2.setText(QCoreApplication.translate("Dialog", u"\u00a9 2020 Jakub Kom\u00e1rek", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Tento program vznikl jako z\u00e1po\u010dtov\u00fd program na MFF UK", None))
     # retranslateUi

@@ -4,7 +4,7 @@ responsible for formatting its output
 """
 
 from PySide2.QtWidgets import QTextEdit
-from covering import models, views, constraints
+from pycovering import models, views, constraints
 
 
 class Formatter:

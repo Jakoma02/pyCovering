@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>PyCover</string>
+   <string>PyCovering</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -292,12 +292,12 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>InfoBox</class>
    <extends>QTextEdit</extends>
-   <header location="global">covering.qt_gui.infobox.h</header>
+   <header location="global">pycovering.qt_gui.infobox.h</header>
   </customwidget>
   <customwidget>
    <class>MessageBox</class>
    <extends>QTextEdit</extends>
-   <header location="global">covering.qt_gui.messagebox.h</header>
+   <header location="global">pycovering.qt_gui.messagebox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

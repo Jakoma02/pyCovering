@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'two_d_visual_dialogAkrNtH.ui'
+## Form generated from reading UI file 'two_d_visual_dialogPFZTKz.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -15,7 +15,7 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
 
-from covering.qt_gui.twodvisualwidget import TwoDVisualWidget
+from pycovering.qt_gui.twodvisualwidget import TwoDVisualWidget
 
 
 class Ui_Dialog(object):
