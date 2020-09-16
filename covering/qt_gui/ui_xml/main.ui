@@ -292,12 +292,12 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>InfoBox</class>
    <extends>QTextEdit</extends>
-   <header location="global">infobox.h</header>
+   <header location="global">covering.qt_gui.infobox.h</header>
   </customwidget>
   <customwidget>
    <class>MessageBox</class>
    <extends>QTextEdit</extends>
-   <header location="global">messagebox.h</header>
+   <header location="global">covering.qt_gui.messagebox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

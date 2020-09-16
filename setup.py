@@ -4,17 +4,16 @@
 Setuptools install script
 """
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="Covering",
     version="0.1",
-    packages=[
-        "covering"
-    ],
+    packages=find_packages(),
     install_requires=[
         "jupyter",
-        "vpython"
+        "vpython",
+        "PySide2",
     ],
 
     author="Jakub Komárek",
@@ -23,6 +22,9 @@ setup(
 
     entry_points="""
         [console_scripts]
-        covering=covering.main:main
+        covering-cli=covering.main:main
+
+        [gui_scripts]
+        covering=covering.qt_gui.gui:main
     """
 )

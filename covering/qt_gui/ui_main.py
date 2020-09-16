@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainWLIAru.ui'
+## Form generated from reading UI file 'mainrZTyXg.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -15,8 +15,8 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
 
-from infobox import InfoBox
-from messagebox import MessageBox
+from covering.qt_gui.infobox import InfoBox
+from covering.qt_gui.messagebox import MessageBox
 
 
 class Ui_MainWindow(object):

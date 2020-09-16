@@ -16,13 +16,13 @@ from PySide2.QtCore import Signal, QThread, Qt
 from PySide2.QtGui import QFont, QStandardItemModel, QStandardItem, QIcon, \
                           QPixmap, QColor
 
-from ui_main import Ui_MainWindow
-from ui_about import Ui_Dialog
-from ui_2d_dimensions import Ui_TwoDDimensionsDialog
-from ui_pyramid_dimensions import Ui_PyramidDimensionsDialog
-from ui_block_size_dialog import Ui_BlockSizeDialog
-from ui_covering_dialog import Ui_CoveringDialog
-from ui_text_view import Ui_TextViewDialog
+from covering.qt_gui.ui_main import Ui_MainWindow
+from covering.qt_gui.ui_about import Ui_Dialog
+from covering.qt_gui.ui_2d_dimensions import Ui_TwoDDimensionsDialog
+from covering.qt_gui.ui_pyramid_dimensions import Ui_PyramidDimensionsDialog
+from covering.qt_gui.ui_block_size_dialog import Ui_BlockSizeDialog
+from covering.qt_gui.ui_covering_dialog import Ui_CoveringDialog
+from covering.qt_gui.ui_text_view import Ui_TextViewDialog
 
 from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
                             PyramidCoveringModel, CoveringTimeoutException, \
@@ -723,9 +723,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().close()
 
 
-if __name__ == "__main__":
+def main():
     app = QApplication()
     mainWindow = MainWindow()
     app.lastWindowClosed.connect(mainWindow.close)
     mainWindow.show()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
