@@ -372,17 +372,19 @@ class GeneralCoveringModel:
         iterables = []
         curr_generated = [pos]
 
-        state_copy = copy.deepcopy(self.state)
+        # Don't copy the state, just make sure to return it as it was
+        state = self.state
+        # state = copy.deepcopy(self.state)
 
-        watcher_instances = [watcher(self, pos, state_copy)
+        watcher_instances = [watcher(self, pos)
                              for watcher in self.constraint_watchers]
 
         if pos is None:
             return None
 
-        state_copy[pos] = Block.PLACEHOLDER
+        state[pos] = Block.PLACEHOLDER
 
-        new_gen = iter(self._group_neighbors(curr_generated, state=state_copy))
+        new_gen = iter(self._group_neighbors(curr_generated, state=state))
         iterables.append(new_gen)
 
         while iterables:
@@ -405,31 +407,33 @@ class GeneralCoveringModel:
 
                 curr_generated.append(generated_pos)
 
-                state_copy[generated_pos] = Block.PLACEHOLDER
+                state[generated_pos] = Block.PLACEHOLDER
 
                 if len(curr_generated) == step_size:
                     if not check_finishable or \
-                           self._is_finishable(state=state_copy):
+                           self._is_finishable(state=state):
                         return tuple(curr_generated)
-                    state_copy[generated_pos] = Block.EMPTY
+                    state[generated_pos] = Block.EMPTY
                     curr_generated.pop()
                     self.message("\t\t\tThe generated position was not "
                                  "finishable, trying another one...")
                 else:
                     new_gen = iter(self._group_neighbors(curr_generated,
-                                                         state=state_copy))
+                                                         state=state))
                     iterables.append(new_gen)
 
             except StopIteration:
                 iterables.pop()
                 last_pos = curr_generated.pop()
-                state_copy[last_pos] = Block.EMPTY
+                state[last_pos] = Block.EMPTY
 
                 for watcher in watcher_instances:
                     # Return all watchers state to the one before the last
                     # position
                     watcher.rollback_state()
 
+        # Restore the initial position
+        state[pos] = Block.EMPTY
         return None
 
     def _is_finishable(self, state=None):
