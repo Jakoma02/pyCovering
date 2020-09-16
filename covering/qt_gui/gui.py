@@ -171,9 +171,9 @@ class BlockListModel(QStandardItemModel):
                 block_str = f"Block {block.number}"
                 item = QStandardItem(block_str)
                 item.setFlags(
-                        Qt.ItemIsUserCheckable |
-                        Qt.ItemIsSelectable |
-                        Qt.ItemIsEnabled
+                    Qt.ItemIsUserCheckable |
+                    Qt.ItemIsSelectable |
+                    Qt.ItemIsEnabled
                 )
                 checkstate = Qt.Checked if block.visible else Qt.Unchecked
                 color = block.color
@@ -280,9 +280,9 @@ class BlockSizeDialog(QDialog, Ui_BlockSizeDialog):
         self.setupUi(self)
 
         self.minBlockSizeSpinBox.valueChanged.connect(
-                self.maxBlockSizeSpinBox.setMinimum)
+            self.maxBlockSizeSpinBox.setMinimum)
         self.maxBlockSizeSpinBox.valueChanged.connect(
-                self.minBlockSizeSpinBox.setMaximum)
+            self.minBlockSizeSpinBox.setMaximum)
 
         min_val = self.minBlockSizeSpinBox.value()
         max_val = self.maxBlockSizeSpinBox.value()
@@ -339,12 +339,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionAbout_2.triggered.connect(self.show_about_dialog)
         self.actionDocumentation.triggered.connect(self.show_help)
         self.actionChange_dimensions.triggered.connect(
-                self.show_dimensions_dialog)
+            self.show_dimensions_dialog)
         self.actionChange_tile_size.triggered.connect(
-                self.show_block_size_dialog)
+            self.show_block_size_dialog)
 
         self.actionGenerate.triggered.connect(
-                self.start_covering)
+            self.start_covering)
 
         self.model_type_changed.connect(self.update_model_type)
         self.model_type_changed.connect(self.update_view_type_menu)
@@ -352,12 +352,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.model_type_changed.connect(self.enable_model_menu_buttons)
 
         self.model_changed.connect(
-                lambda _: self.info_updated.emit(self.model, self.view))
+            lambda _: self.info_updated.emit(self.model, self.view))
 
         self.view_type_changed.connect(self.update_view_type)
 
         self.view_changed.connect(
-                lambda _: self.info_updated.emit(self.model, self.view))
+            lambda _: self.info_updated.emit(self.model, self.view))
         self.info_updated.connect(self.infoText.update)
         self.info_updated.connect(self.update_view)
 
@@ -405,7 +405,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.thread.failed.connect(self.covering_failed)
 
         self.thread.done.connect(
-                lambda: self.model_changed.emit(self.model))
+            lambda: self.model_changed.emit(self.model))
 
         self.thread.start()
         dialog.open()
@@ -612,9 +612,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if isinstance(model, PyramidCoveringModel):
             return [
-                    ("Pyramid Print view",
-                        text_view_decorator(PyramidPrintView, self)),
-                    ("Pyramid Visual view", PyramidVisualView)
+                ("Pyramid Print view",
+                 text_view_decorator(PyramidPrintView, self)),
+                ("Pyramid Visual view", PyramidVisualView)
             ]
 
         return []
@@ -628,13 +628,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if isinstance(model, TwoDCoveringModel):
             return [
-                    ("Path blocks", PathConstraintWatcher)
+                ("Path blocks", PathConstraintWatcher)
             ]
 
         if isinstance(model, PyramidCoveringModel):
             return [
-                    ("Path blocks", PathConstraintWatcher),
-                    ("Planar blocks", PlanarConstraintWatcher)
+                ("Path blocks", PathConstraintWatcher),
+                ("Planar blocks", PlanarConstraintWatcher)
             ]
 
         return []
@@ -724,10 +724,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 def main():
+    """
+    This is the app entrypoint.
+    """
     app = QApplication()
-    mainWindow = MainWindow()
-    app.lastWindowClosed.connect(mainWindow.close)
-    mainWindow.show()
+    main_window = MainWindow()
+    app.lastWindowClosed.connect(main_window.close)
+    main_window.show()
     sys.exit(app.exec_())
 
 
