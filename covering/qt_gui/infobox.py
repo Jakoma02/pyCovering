@@ -60,6 +60,8 @@ class ModelFormatter(Formatter):
         """
         if watcher is constraints.PathConstraintWatcher:
             return "Path blocks"
+        if watcher is constraints.PlanarConstraintWatcher:
+            return "Planar blocks"
 
         return "Unknown"
 

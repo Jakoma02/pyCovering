@@ -36,7 +36,7 @@
   <customwidget>
    <class>TwoDVisualWidget</class>
    <extends>QWidget</extends>
-   <header>twodvisualwidget.h</header>
+   <header>covering.qt_gui.twodvisualwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

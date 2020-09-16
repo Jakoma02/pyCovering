@@ -16,7 +16,7 @@ from covering.models import PyramidCoveringModel, \
 
 from covering.views import TwoDPrintView, PyramidPrintView, \
                            PyramidVisualView, TwoDVisualView
-from covering.constraints import PathConstraintWatcher
+from covering.constraints import PathConstraintWatcher, PlanarConstraintWatcher
 
 COVERING_ATTEMPTS = 100
 
@@ -134,9 +134,6 @@ def get_parser():
         default=10
     )
 
-    # three_d_parser = subparsers.add_parser("3d")
-    # three_d_parser.set_defaults(model="3d")
-
     pyramid_parser = subparsers.add_parser("pyramid",
                                            parents=[general_subparser])
 
@@ -145,6 +142,11 @@ def get_parser():
         "-s",
         type=int,
         default=4
+    )
+
+    pyramid_parser.add_argument(
+        "--planar",
+        action="store_true"
     )
 
     pyramid_parser.set_defaults(model="pyramid")
@@ -203,11 +205,11 @@ def set_constraints(model, args):
     """
     Set model constraints according to args values
     """
-    # if args.string:
-    #   # model.add_constraint(string_constraint)
-
     if args.path:
         model.add_constraint(PathConstraintWatcher)
+
+    if "planar" in args and args.planar:
+        model.add_constraint(PlanarConstraintWatcher)
 
 
 def main():

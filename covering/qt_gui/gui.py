@@ -32,7 +32,7 @@ from covering.models import GeneralCoveringModel, TwoDCoveringModel, \
 from covering.views import GeneralView, TwoDPrintView, PyramidPrintView, \
                            PyramidVisualView, TwoDVisualView
 
-from covering.constraints import PathConstraintWatcher
+from covering.constraints import PathConstraintWatcher, PlanarConstraintWatcher
 
 
 def parented_decorator(cls, parent):
@@ -633,7 +633,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if isinstance(model, PyramidCoveringModel):
             return [
-                    ("Path blocks", PathConstraintWatcher)
+                    ("Path blocks", PathConstraintWatcher),
+                    ("Planar blocks", PlanarConstraintWatcher)
             ]
 
         return []
