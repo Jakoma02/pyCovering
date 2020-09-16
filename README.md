@@ -16,7 +16,7 @@ program instalovat i na ostatních platformách)_
 
 1) Naklonujte tento repozitář na svůj počítač.
 ```
-$ git clone https://github.com/Jakoma02/covering.git
+$ git clone https://github.com/Jakoma02/pyCovering.git
 ```
 
 2) Přejděte do složky s repozitářem.
