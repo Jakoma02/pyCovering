@@ -5,6 +5,7 @@ Program entrypoint, facilitates argument parsing.
 """
 
 import argparse
+import sys
 
 from PySide2.QtWidgets import QApplication
 
@@ -186,19 +187,6 @@ def do_covering(model, args):
     Tries to cover the model `attempts` times
     """
     # TODO: Get rid of this
-    if args.verbose >= 1:
-        print("Attempting to cover the model... ", flush=True)
-
-    try:
-        model.reset()
-        model.try_cover()
-    except (ImpossibleToFinishException, CoveringTimeoutException):
-        if args.verbose >= 1:
-            print("\tFAILED")
-    else:
-        if args.verbose >= 1:
-            print("\tSUCCESS")
-        return  # Success
 
 
 def set_constraints(model, args):
@@ -228,7 +216,19 @@ def main():
 
     set_constraints(model, args)
 
-    do_covering(model, args)
+    if args.verbose >= 1:
+        print("Attempting to cover the model... ", flush=True)
+
+    try:
+        model.reset()
+        model.try_cover()
+    except (ImpossibleToFinishException, CoveringTimeoutException):
+        print("Covering failed")
+        sys.exit(1)
+
+    if args.verbose >= 1:
+        print("\tSUCCESS")
+
     view.show(model)
 
 
