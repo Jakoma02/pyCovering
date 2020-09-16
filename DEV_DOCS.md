@@ -40,5 +40,30 @@ sousedy zadané pozice, přesněji je to jejich generátor).
 
 
 ## Algoritmus pokrývání
+Program bere postupně jednotlivé prázdné pozice (podle nějakého lineárního
+uspořádání pozic určeného modelem) a snaží se na ně vkládat náhodné dílky.
+To dělá pomocí **randomizovaného backtrackingu**.
+
+Nejprve je určena velikost dílku (aby byly všechny velikosti dílků přibližně
+stejně pravděpodobné). Pak program hledá volné sousedy dosud vygenerovaného
+bloku do té doby, než má block požadovanou velikost. Pokud nalezený blok splňuje
+všechna omezení, je přidán do modelu. Pokud se dostane slepé
+uličky, backtrackuje.
+
+Pokud je požadovaná velikost bloku jednoznačně určena (tedy minimální a maximální
+povolená velikost bloku se rovanají), zkontroluje se před přidáním bloku,
+jestli budou mít všechny souvislé oblasti prázdných pozic velikost **dělitelnou
+velikostí bloku**. V opačném případě později nebude možné model doskládat a přidání
+bloku je okamžitě zamítnuto.
+
+Pokud velikost bloku jednoznačná není, takto silná podmínka platit nemusí.
+Proto se pouze ověřuje, jestli velikost nějaké souvislé oblasti není menší
+než nejmenší povolená velikost bloku nebo naopak větší než největší povolená
+velikost bloku.
+
+Protože určit počet všech bloků, které jdou na danou pozici umístit, je výpočetně
+náročné, provede program pevný počet pokusů o nalezení náhodného bloku.
+Pokud žádný z nich nevede k cíli, i na této úrovni pokračuje v backtrackingu -
+odstraní poslední přidaný blok a hledá k němu alternativu.
 
 ## Omezení/Constraints
