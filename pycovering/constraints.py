@@ -221,6 +221,8 @@ class PlanarConstraintWatcher(GeneralConstraintWatcher):
         return vector1.is_dependent(vector2)
 
     def check_position(self, pos):
+        super().check_position(pos)
+
         x, y, z = pos
         new_point = Vector(x, y, z)
 
