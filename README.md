@@ -41,25 +41,33 @@ $ pip install .
 
 ## Použití
 Program je možné využívat ve dvou režimech:
- 1) V grafickém rozhraní `pycovering`
- 2) V příkazové řádce pomocí `pycovering-cli`
+
+ 1) V příkazové řádce pomocí `pycovering-cli`
+ 2) V grafickém rozhraní `pycovering`
 
 ### Příkazová řádka
 ```
 pycovering-cli {2d,pyramid} <model-arguments>
 ```
 
-Argumenty modelu jsou
+Argumenty se liší podle zvoleného modelu/tvaru.
 
-1) společné
-   - `--help`
-   - `--min-block-size/-mib`
-   - `--max-block-size/-mab`
-   - `--verbose/-v`
-2) 2d
-   - `--height`
-   - `--width`
-   - `--visual` 
-3) pyramid
-   - `--size/s`
-   - `--visual`
+1) Obecné argumenty
+   - `--help/-h` zobrazí nápovědu programu nebo zvoleného modelu
+   - `--verbose/-v` zvýší verbositu, možné použít i `-vv`
+
+2) Argumenty modelu
+   - `--min-block-size/-mib <int>` nastaví nejmenší velikost bloku,
+		který smí být při pokrývání použit
+   - `--max-block-size/-mab <int>` nastaví největší velikost bloku,
+		který smí být při pokrývání použit
+   - `--height <int>` _(pouze 2d)_ nastaví výšku pokrývaného obdélníka
+   - `--width <int>` _(pouze 2d)_ nastaví šířku pokrývaného obdélníka
+   - `--size/-s <int>` _(pouze pyramid)_  nastaví velikost pokrývané pyramidy
+   - `--path` používá při pokrývání pouze dílky, které jsou cestami
+   - `--planar` _(pouze pyramid)_ používá při pokrývání pouze dílky,
+		které leží v jedné rovině
+
+3) Argumenty vizualizace
+   - `--visual` místo v terminálu otevře grafické okno, ve kterém výsledek
+	znázorní
