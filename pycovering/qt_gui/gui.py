@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Gui interface for the application
 """
