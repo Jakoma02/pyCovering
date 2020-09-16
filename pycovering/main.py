@@ -78,7 +78,7 @@ def get_parser():
     Return a configured parser
     """
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(help="The covering model")
 
     general_subparser = argparse.ArgumentParser(add_help=False)
 
@@ -86,36 +86,36 @@ def get_parser():
         "--min-block-size",
         "-mib",
         type=int,
-        default=4
+        default=4,
+        help="Minimal allowed block size"
     )
 
     general_subparser.add_argument(
         "--max-block-size",
         "-mab",
         type=int,
-        default=4
+        default=4,
+        help="Maximal allowed block size"
     )
 
     general_subparser.add_argument(
         "--visual",
-        action="store_true"
+        action="store_true",
+        help="Show the result visually"
     )
 
     general_subparser.add_argument(
         "--verbose",
         "-v",
         action="count",
-        default=0
-    )
-
-    general_subparser.add_argument(
-        "--string",
-        action="store_true"
+        default=0,
+        help="Be more verbose, --v even more"
     )
 
     general_subparser.add_argument(
         "--path",
-        action="store_true"
+        action="store_true",
+        help="Let all blocks be paths"
     )
 
     two_d_parser = subparsers.add_parser("2d", parents=[general_subparser])
@@ -124,13 +124,15 @@ def get_parser():
     two_d_parser.add_argument(
         "--width",
         type=int,
-        default=10
+        default=10,
+        help="The rectangle width"
     )
 
     two_d_parser.add_argument(
         "--height",
         type=int,
-        default=10
+        default=10,
+        help="The rectangle height"
     )
 
     pyramid_parser = subparsers.add_parser("pyramid",
@@ -140,12 +142,14 @@ def get_parser():
         "--size",
         "-s",
         type=int,
-        default=4
+        default=4,
+        help="The pyramid size"
     )
 
     pyramid_parser.add_argument(
         "--planar",
-        action="store_true"
+        action="store_true",
+        help="All blocks must lie in one plane"
     )
 
     pyramid_parser.set_defaults(model="pyramid")
@@ -181,6 +185,7 @@ def do_covering(model, args):
     """
     Tries to cover the model `attempts` times
     """
+    # TODO: Get rid of this
     if args.verbose >= 1:
         print("Attempting to cover the model... ", flush=True)
 
