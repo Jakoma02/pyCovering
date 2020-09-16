@@ -66,4 +66,31 @@ náročné, provede program pevný počet pokusů o nalezení náhodného bloku.
 Pokud žádný z nich nevede k cíli, i na této úrovni pokračuje v backtrackingu -
 odstraní poslední přidaný blok a hledá k němu alternativu.
 
+
 ## Omezení/Constraints
+Omezení je nějaká vlastnost, kterou musí všechny bloky splňovat (například
+rovinnost nebo tvar cesty). Tato vlastnost je kontrolována před přidáním
+každé pozice do bloku, aby algoritmus netrávil zbytečně mnoho času
+ve slepých uličkách.
+
+Protože při kontrole omezení pro novou pozici bloku často chceme s výhodou
+využít informací zjištěných při kontrole předchozích pozic (např. pokud
+ověřujeme rovinnost bloku a už známe předpis roviny, ve které všechny dosud
+přidané body leží, nemusíme jej znovu hledat), pro kontrolu omezení
+se používají tzv. **constraint watchers**, které jsou **stavové**
+a **persistentní**.
+
+Persistentnost znamená, že si watcher pamatuje i **všechny jeho předchozí
+stavy** a je schopen je (pomocí metody `rollback_state()`) obnovit. To se při
+backtrackingu hodí při vracení se ze slepých uliček.
+
+Persistentnost znamená, že si watcher pamatuje i **všechny jeho předchozí
+stavy** a je schopen je (pomocí metody `rollback_state()`) obnovit. To se při
+backtrackingu hodí při vracení se ze slepých uliček
+
+Každý watcher má metodu `check_position(pos)`. Ta nejprve načte poslední stav
+ze zásobníku stavů a pak vrátí, jestli bude po přidání pozice `pos` blok stále
+splňovat omezení. Při tom zároveň upraví svůj vnitřní stav, který po zavolání
+metody `commit()` uloží na svůj zásobník stavů. Pokud pozice přidána není
+(např. není splněno jiné omezení) a metoda `commit()` není zavolána, ani stav
+na zásobníku upraven není.
