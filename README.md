@@ -71,3 +71,32 @@ Argumenty se liší podle zvoleného modelu/tvaru.
 3) Argumenty vizualizace
    - `--visual` místo v terminálu otevře grafické okno, ve kterém výsledek
 	znázorní
+
+#### Ukázkové použití
+```
+$ pycovering-cli 2d --width 8 --height 10 -mib 2 -mab 6 --path
+ 1  1  2  2  3  3  4  4 
+ 1  5  5  2  6  6  4  7 
+ 1  8  8  2  9  9  9  7 
+ 1  1  8  2  2  10 9  7 
+ 11 11 12 12 10 10 9  7 
+ 13 12 12 14 14 14 7  7 
+ 13 15 15 15 16 16 16 17
+ 13 15 18 18 16 19 16 17
+ 13 20 18 21 21 19 22 17
+ 13 20 18 18 18 22 22 17
+```
+
+### Grafické rozhraní
+![Popsaný screenshot](images/gui_screenshot_with_description.png)
+
+#### Typické použití
+
+1) V menu zvolte `Model` a  vyberte požadovaný typ/tvar modelu.
+2) Ve stejné nabídce nastavte požadované vlastnosti modelu: velikosti
+	generovaných bloků, dimenze modelu a případná omezení (constraints).
+3) V nabídce `View` vyberte požadovaný způsob zobrazení.
+4) Zahajte pokrývání modelu volbou `App` > `Cover` a vyčkejte na dokončení
+	pokrývání.
+5) V seznamu bloků pomocí zaškrtávacích políček vyberte, které bloky
+	se mají zobrazovat.
