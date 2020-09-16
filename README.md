@@ -37,12 +37,12 @@ $ pip install .
 
 ## Použití
 Program je možné využívat ve dvou režimech:
- 1) V grafickém rozhraní `covering`
- 2) V příkazové řádce pomocí `covering-cli`
+ 1) V grafickém rozhraní `pycovering`
+ 2) V příkazové řádce pomocí `pycovering-cli`
 
 ### Příkazová řádka
 ```
-covering-cli {2d,pyramid} <model-arguments>
+pycovering-cli {2d,pyramid} <model-arguments>
 ```
 
 Argumenty modelu jsou
