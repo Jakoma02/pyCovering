@@ -14,6 +14,7 @@ setup(
         "jupyter",
         "vpython",
         "PySide2",
+        "wheel",
     ],
 
     author="Jakub Komárek",
