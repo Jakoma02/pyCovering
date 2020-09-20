@@ -33,13 +33,13 @@ $ cd pycovering
 
 3) _(Volitelné)_ Aktivujte `virtualenv`
 ```
-$ python -m venv venv
+$ python3 -m venv venv
 $ source ./venv/bin/activate
 ```
 
 4) Nainstalujte program pomocí nástroje pip.
 ```
-$ pip install .
+$ python3 -m pip install .
 ```
 
 ## Použití
